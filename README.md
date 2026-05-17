@@ -52,8 +52,9 @@ See [examples/fastapi_demo.py](examples/fastapi_demo.py).
 ## Limitations (0.1.0)
 
 - No RDF import or SHACL generation yet (planned for 0.2+)
-- Foreign-key-only relationships export as `@id` references, not nested objects
+- Foreign-key-only relationships export as `@id` references, not nested objects (use a nested `OntoMixin` field for embedded objects)
 - JSON-LD framing requires a future `semsql[jsonld]` extra (PyLD)
+- Do not map two fields to the same ontology property; if you do, nested objects are preferred over FK integers (a warning is emitted)
 
 ## Documentation
 

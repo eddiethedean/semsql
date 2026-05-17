@@ -2,17 +2,21 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
+from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
 
 from semsql._meta import (
     _has_onto_mixin,
     build_instance_iri,
+    coerce_jsonld_scalar,
     get_model_onto_type,
     get_model_registry,
     get_nested_model_class,
     get_onto_meta,
+    is_fk_scalar,
     is_list_annotation,
     is_onto_model_class,
     iter_exportable_fields,
@@ -47,6 +51,7 @@ def model_to_jsonld(
     else:
         doc["@type"] = model_cls.__name__
 
+    pending: dict[str, list[_FieldExport]] = {}
     for field_name, field_info in iter_exportable_fields(model_cls):
         meta = get_onto_meta(field_info)
         if not meta and field_name == "id":
@@ -59,19 +64,74 @@ def model_to_jsonld(
             continue
 
         key = property_key(field_name, meta, reg)
-        annotation = field_info.annotation
+        pending.setdefault(key, []).append(
+            _FieldExport(
+                field_name=field_name,
+                field_info=field_info,
+                meta=meta,
+                value=value,
+                annotation=field_info.annotation,
+            )
+        )
 
+    for key, entries in pending.items():
+        if len(entries) > 1:
+            warnings.warn(
+                f"Multiple fields map to JSON-LD property {key!r} on {model_cls.__name__}; "
+                "preferring nested object over foreign-key reference",
+                stacklevel=2,
+            )
+        chosen = _choose_field_export(entries)
         serialized = _serialize_value(
-            value,
-            meta,
-            annotation,
+            chosen.value,
+            chosen.meta,
+            chosen.annotation,
             reg,
-            field_name,
+            chosen.field_name,
         )
         if serialized is not None:
             doc[key] = serialized
 
     return doc
+
+
+class _FieldExport:
+    __slots__ = ("field_name", "field_info", "meta", "value", "annotation")
+
+    def __init__(
+        self,
+        *,
+        field_name: str,
+        field_info: FieldInfo,
+        meta: dict[str, Any],
+        value: Any,
+        annotation: Any,
+    ) -> None:
+        self.field_name = field_name
+        self.field_info = field_info
+        self.meta = meta
+        self.value = value
+        self.annotation = annotation
+
+
+def _field_export_priority(entry: _FieldExport) -> int:
+    """Higher score wins when multiple fields share the same property key."""
+    nested_cls = get_nested_model_class(entry.annotation)
+    related = entry.meta.get("related_model")
+    if isinstance(related, type):
+        nested_cls = related
+
+    if nested_cls is not None and _has_onto_mixin(type(entry.value)) and hasattr(
+        entry.value, "to_jsonld"
+    ):
+        return 3
+    if is_fk_scalar(entry.value, nested_cls):
+        return 1
+    return 2
+
+
+def _choose_field_export(entries: list[_FieldExport]) -> _FieldExport:
+    return max(entries, key=_field_export_priority)
 
 
 def _serialize_value(
@@ -82,7 +142,10 @@ def _serialize_value(
     field_name: str,
 ) -> Any:
     if is_list_annotation(annotation):
-        return [_serialize_single(item, meta, annotation, registry, field_name) for item in value]
+        items = list(value) if isinstance(value, tuple) else value
+        return [
+            _serialize_single(item, meta, annotation, registry, field_name) for item in items
+        ]
     return _serialize_single(value, meta, annotation, registry, field_name)
 
 
@@ -105,7 +168,7 @@ def _serialize_single(
             return nested_doc
         if isinstance(value, int):
             return {"@id": reference_iri(nested_cls, value, registry)}
-        return value
+        return coerce_jsonld_scalar(value)
 
     if is_onto_model_class(annotation) and isinstance(value, int):
         fk_cls = get_nested_model_class(annotation)

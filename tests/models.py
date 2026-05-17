@@ -24,10 +24,16 @@ class Organization(SQLModel, OntoMixin, table=False):
 class Employee(SQLModel, OntoMixin, table=False):
     id: int | None = Field(default=None, primary_key=True)
     title: str = onto_field(ontology="schema:jobTitle")
+    organization: Organization | None = onto_field(ontology="schema:worksFor", default=None)
+
+
+@onto_model(type_="schema:Employee", iri_template="http://example.org/employee/{id}")
+class EmployeeFk(SQLModel, OntoMixin, table=False):
+    id: int | None = Field(default=None, primary_key=True)
+    title: str = onto_field(ontology="schema:jobTitle")
     organization_id: int | None = onto_field(
         default=None,
         foreign_key="organization.id",
         ontology="schema:worksFor",
         related_model=Organization,
     )
-    organization: Organization | None = onto_field(ontology="schema:worksFor", default=None)

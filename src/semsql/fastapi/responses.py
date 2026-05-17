@@ -10,16 +10,26 @@ from fastapi.responses import Response
 from semsql.rdf import media_type_for_format, normalize_format
 
 
+def _dumps_json(data: Any) -> str:
+    """Serialize data to a JSON string, using orjson when available."""
+    try:
+        import orjson
+    except ImportError:
+        return json.dumps(data, indent=2)
+
+    return orjson.dumps(data, option=orjson.OPT_INDENT_2).decode()
+
+
 def _serialize_data(data: Any, fmt: str) -> tuple[str, str]:
     """Return (body, media_type) for OntoMixin instance or pre-built payload."""
     rdflib_fmt = normalize_format(fmt)
 
     if rdflib_fmt == "json-ld":
         if hasattr(data, "to_jsonld") and callable(data.to_jsonld):
-            body = json.dumps(data.to_jsonld(), indent=2)
+            body = _dumps_json(data.to_jsonld())
             return body, "application/ld+json"
         if isinstance(data, dict):
-            return json.dumps(data, indent=2), "application/ld+json"
+            return _dumps_json(data), "application/ld+json"
 
     if hasattr(data, "to_rdf") and callable(data.to_rdf):
         body = data.to_rdf(format=rdflib_fmt)

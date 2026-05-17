@@ -62,22 +62,23 @@ Version 0.1 should focus on:
 
 ## Roadmap
 
-### v0.1
+### v0.1 (released)
 
-- Ontology field metadata (`onto_field`)
-- JSON-LD serialization
-- RDF export
+- Ontology field metadata (`onto_field`, `@onto_model`)
+- JSON-LD serialization (including typed literals and duplicate-property handling)
+- RDF export (Turtle, JSON-LD, N-Triples, RDF/XML)
+- `PrefixRegistry`
+- FastAPI content negotiation and response classes (`semsql[fastapi]`)
 
 ### v0.2
 
 - SHACL generation
 - RDF import
-- Prefix management
+- Extended prefix / vocabulary management
 
 ### v0.3
 
-- FastAPI ontology routers
-- Content negotiation
+- FastAPI `OntoRouter` and OpenAPI semantic enrichment
 
 ### v0.4
 

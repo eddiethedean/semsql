@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel
 
 from semsql import OntoMixin, onto_field, onto_model
 from semsql.registry import PrefixRegistry
-from tests.models import Employee, Person
+from tests.models import EmployeeFk, Person
 
 
 @onto_model(type_="schema:Tag")
@@ -22,7 +22,7 @@ def test_list_field_serialization() -> None:
 
 
 def test_fk_reference() -> None:
-    emp = Employee(id=1, title="Dev", organization_id=5)
+    emp = EmployeeFk(id=1, title="Dev", organization_id=5)
     doc = emp.to_jsonld()
     ref = doc.get("schema:worksFor")
     assert ref == {"@id": "http://example.org/org/5"}

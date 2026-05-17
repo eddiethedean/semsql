@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from datetime import date, datetime
+from decimal import Decimal
+from enum import Enum
 from typing import Any, get_args, get_origin
+from uuid import UUID
 
 from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
@@ -144,6 +149,38 @@ def iter_exportable_fields(model_cls: type[SQLModel]) -> list[tuple[str, FieldIn
     ]
 
 
+def coerce_jsonld_scalar(value: Any) -> Any:
+    """Coerce a scalar Python value to a JSON-serializable form."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, UUID):
+        return str(value)
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
+def _auto_xsd_for_value(value: Any) -> str | None:
+    """Infer XSD datatype CURIE from a runtime value."""
+    if isinstance(value, datetime):
+        return "xsd:dateTime"
+    if isinstance(value, date):
+        return "xsd:date"
+    if isinstance(value, Decimal):
+        return "xsd:decimal"
+    if isinstance(value, UUID):
+        return "xsd:string"
+    return None
+
+
 def literal_value_dict(
     value: Any,
     meta: dict[str, Any],
@@ -151,14 +188,18 @@ def literal_value_dict(
     registry: PrefixRegistry,
 ) -> Any:
     """Wrap a literal value with @type / @language if metadata requires it."""
+    coerced = coerce_jsonld_scalar(value)
     datatype = meta.get("datatype")
     language = meta.get("language")
     if datatype is None and language is None:
         inferred = infer_xsd_datatype(annotation)
-        if inferred and isinstance(value, (int, float, bool)):
-            return {"@value": value, "@type": resolve_curie(inferred, registry)}
-        return value
-    result: dict[str, Any] = {"@value": value}
+        if inferred and isinstance(coerced, (int, float, bool)):
+            return {"@value": coerced, "@type": resolve_curie(inferred, registry)}
+        auto_xsd = _auto_xsd_for_value(value)
+        if auto_xsd is not None:
+            return {"@value": coerced, "@type": resolve_curie(auto_xsd, registry)}
+        return coerced
+    result: dict[str, Any] = {"@value": coerced}
     if datatype is not None:
         dt = str(datatype)
         result["@type"] = resolve_curie(dt, registry) if ":" in dt else dt
@@ -185,5 +226,19 @@ def reference_iri(
 
 
 def is_list_annotation(annotation: Any) -> bool:
+    """Return True if the annotation is a list, tuple, or other non-str Sequence."""
     origin = get_origin(annotation)
-    return origin is list
+    if origin is list or origin is tuple:
+        return True
+    if origin is not None and origin is not str and isinstance(origin, type):
+        try:
+            if issubclass(origin, Sequence):
+                return True
+        except TypeError:
+            pass
+    return False
+
+
+def is_fk_scalar(value: Any, nested_cls: type[Any] | None) -> bool:
+    """Return True if value looks like a foreign-key id for nested_cls."""
+    return nested_cls is not None and isinstance(value, int)

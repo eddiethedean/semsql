@@ -22,6 +22,38 @@ _ACCEPT_MAP: list[tuple[str, type[Response]]] = [
     ("application/rdf+xml", RDFXMLResponse),
 ]
 
+_KNOWN_MIMES = frozenset(mime for mime, _ in _ACCEPT_MAP)
+
+
+def _parse_accept_params(part: str) -> tuple[str, float]:
+    """Parse one Accept entry into (media_type, q_value)."""
+    tokens = [t.strip() for t in part.split(";") if t.strip()]
+    if not tokens:
+        return "", 1.0
+    media_type = tokens[0].lower()
+    q = 1.0
+    for token in tokens[1:]:
+        if token.startswith("q="):
+            q_str = token[2:].strip()
+            try:
+                q = float(q_str)
+            except ValueError:
+                q = 1.0
+    return media_type, q
+
+
+def _matches_known_mime(media_type: str) -> str | None:
+    """Return the known MIME if media_type matches exactly or as a type/* range."""
+    if media_type in _KNOWN_MIMES:
+        return media_type
+    if "/" in media_type:
+        major, _, _minor = media_type.partition("/")
+        if _minor == "*" and major:
+            matches = [m for m in _KNOWN_MIMES if m.startswith(f"{major}/")]
+            if len(matches) == 1:
+                return matches[0]
+    return None
+
 
 def _parse_accept(accept: str | None) -> str | None:
     """Return the best matching semantic media type from Accept header."""
@@ -29,25 +61,14 @@ def _parse_accept(accept: str | None) -> str | None:
         return None
     candidates: list[tuple[float, str]] = []
     for part in accept.split(","):
-        part = part.strip()
-        if not part:
+        media_type, q = _parse_accept_params(part)
+        if not media_type or q == 0.0:
             continue
-        if ";q=" in part:
-            mime, _, qval = part.partition(";q=")
-            try:
-                q = float(qval.strip())
-            except ValueError:
-                q = 1.0
-        else:
-            mime = part
-            q = 1.0
-        mime = mime.strip().lower()
-        for known_mime, _ in _ACCEPT_MAP:
-            if mime == known_mime or mime == "*/*" or mime == "application/*":
-                candidates.append((q, known_mime))
-        for known_mime, _ in _ACCEPT_MAP:
-            if mime in known_mime:
-                candidates.append((q * 0.9, known_mime))
+        if media_type in ("*/*", "*"):
+            continue
+        matched = _matches_known_mime(media_type)
+        if matched is not None:
+            candidates.append((q, matched))
     if not candidates:
         return None
     candidates.sort(key=lambda x: x[0], reverse=True)

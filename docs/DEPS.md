@@ -139,26 +139,36 @@ PyLD significantly improves JSON-LD capabilities beyond basic RDFLib support.
 - Typed ETL pipelines
 - Ontology-aware DataFrame workflows
 
-## Recommended Extras Structure
+## Extras in pyproject.toml (0.1.0)
 
 ```toml
 [project.optional-dependencies]
-fastapi = ["fastapi", "orjson"]
-jsonld = ["PyLD"]
-shacl = ["pySHACL"]
-graphdb = ["SPARQLWrapper", "neo4j"]
-ai = ["instructor", "pydantic-ai", "deeponto"]
-owl = ["Owlready2"]
-polars = ["polars"]
-dev = ["pytest", "ty", "ruff", "mkdocs-material"]
+fastapi = ["fastapi>=0.100", "orjson>=3.9"]
+dev = ["pytest", "pytest-cov", "ty", "ruff", "httpx", "fastapi", "orjson", ...]
 ```
+
+- **`fastapi`** — installs FastAPI and orjson; `semsql.fastapi` uses orjson for JSON-LD responses when available
+- **`dev`** — test, lint, and type-check tooling
 
 Install examples:
 
 ```bash
 pip install semsql
-pip install semsql[fastapi,jsonld]
-pip install semsql[shacl,graphdb,ai]
+pip install semsql[fastapi]
+pip install -e ".[dev]"
+```
+
+## Proposed future extras
+
+The following are **not** yet defined in `pyproject.toml` but are under consideration:
+
+```toml
+jsonld = ["PyLD"]           # framing and advanced JSON-LD
+shacl = ["pySHACL"]         # SHACL validation
+graphdb = ["SPARQLWrapper", "neo4j"]
+ai = ["instructor", "pydantic-ai", "deeponto"]
+owl = ["Owlready2"]
+polars = ["polars"]
 ```
 
 ## Strategic Recommendations

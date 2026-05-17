@@ -10,16 +10,24 @@
 | Import | `import semsql` |
 | Python | 3.10+ |
 
-## Core Components
+## Implementation status (0.1.0)
 
-1. `OntoMixin` — mixin for SQLModel classes
-2. `onto_field()` — field helper with ontology metadata
-3. `PrefixRegistry` — CURIE / namespace management
-4. JSON-LD serializer
-5. RDF graph adapter (RDFLib)
-6. SHACL generator
-7. FastAPI integration (`semsql.fastapi`)
-8. Graph synchronization adapters
+### Implemented
+
+1. `OntoMixin` — mixin for SQLModel classes (`to_jsonld`, `to_rdf`, `onto_context`)
+2. `onto_field()` / `@onto_model` — field and class ontology metadata
+3. `PrefixRegistry` — CURIE expansion, compaction, JSON-LD `@context`
+4. JSON-LD serializer — nested objects, FK references, typed literals (`datetime`, `UUID`, `Decimal`, `Enum`, tuples)
+5. RDF export via RDFLib (Turtle, JSON-LD, N-Triples, RDF/XML)
+6. FastAPI integration (`semsql.fastapi`) — response classes and `negotiate_onto_response` content negotiation
+
+### Planned (0.2+)
+
+7. SHACL shape generation
+8. RDF → SQLModel import
+9. `OntoRouter` and OpenAPI semantic enrichment
+10. Graph synchronization adapters
+11. JSON-LD framing (PyLD extra)
 
 ## Example API
 
@@ -64,8 +72,9 @@ Supported keys:
 - Automatic `@context` generation
 - `@id` and `@type` handling
 - Compact IRIs via `PrefixRegistry`
-- Nested relationship serialization
-- Optional framing (PyLD extra)
+- Nested relationship serialization (prefer nested object over FK when both map to the same property)
+- JSON-native coercion for `datetime`, `date`, `UUID`, `Decimal`, `Enum`, and `tuple` values
+- Optional framing (PyLD extra, planned)
 
 ## RDF Support
 
@@ -76,50 +85,54 @@ RDFLib is used internally. Supported serializations:
 - RDF/XML
 - N-Triples
 
-## SHACL Generation
+## SHACL Generation (planned)
 
-SemSQL generates SHACL `NodeShape`s from SQLModel definitions.
+SHACL `NodeShape` generation from SQLModel definitions is planned for 0.2+.
 
-| SQLModel / Python | SHACL |
-|-------------------|-------|
-| `str` | `sh:datatype xsd:string` |
-| Optional field | `sh:minCount 0` |
-| Required field | `sh:minCount 1` |
-| Relationship | `sh:node` |
-
-## FastAPI Integration
+## FastAPI Integration (0.1.0)
 
 ```python
-from fastapi import FastAPI
-from semsql.fastapi import OntoRouter
+from fastapi import FastAPI, Request
+from semsql.fastapi import negotiate_onto_response
 
 app = FastAPI()
-app.include_router(OntoRouter(models=[Person]))
+
+@app.get("/person/{person_id}")
+def get_person(person_id: int, request: Request):
+  ...
+  return negotiate_onto_response(request, person)
 ```
 
-Features:
+Implemented in 0.1.0:
 
-- Ontology-aware routers
-- Content negotiation (`application/ld+json`, `text/turtle`, etc.)
-- JSON-LD and RDF response classes
+- Content negotiation (`application/ld+json`, `text/turtle`, `application/n-triples`, `application/rdf+xml`)
+- JSON-LD and RDF response classes (`JSONLDResponse`, `TurtleResponse`, etc.)
+- `orjson` used for JSON-LD bodies when installed (`semsql[fastapi]`)
+
+Planned:
+
+- `OntoRouter` for auto-generated CRUD routes
 - OpenAPI enrichment with semantic metadata
 
 ## Persistence Model
 
 Operational persistence stays relational via SQLModel and SQLAlchemy. Ontology export and import are an interoperability layer on top of the database — they do not replace it.
 
-## Package Layout (proposed)
+## Package Layout (0.1.0)
 
 ```text
-semsql/
+src/semsql/
   __init__.py          # OntoMixin, onto_field, PrefixRegistry
+  _meta.py             # introspection and JSON-LD value coercion
+  decorator.py         # onto_model
+  fields.py            # onto_field
+  mixin.py
   jsonld.py
   rdf.py
-  shacl.py
   registry.py
   fastapi/
     __init__.py
-    router.py
+    negotiate.py
     responses.py
 ```
 

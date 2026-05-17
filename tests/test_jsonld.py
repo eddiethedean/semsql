@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import warnings
+
 from sqlmodel import Field, SQLModel
 
 from semsql import OntoMixin, onto_field, onto_model
-from tests.models import Employee, Person
+from tests.models import Employee, EmployeeFk, Organization, Person
 
 
 def test_person_jsonld_structure(person: Person) -> None:
@@ -33,15 +35,42 @@ def test_nested_organization(employee_with_org: Employee) -> None:
 
 
 def test_fk_reference_only() -> None:
-    emp = Employee(id=3, title="Engineer", organization_id=99)
+    emp = EmployeeFk(id=3, title="Engineer", organization_id=99)
     doc = emp.to_jsonld()
-    # organization_id has no onto meta; organization field may be absent
     assert doc["schema:jobTitle"] == "Engineer"
+    assert doc["schema:worksFor"] == {"@id": "http://example.org/org/99"}
 
 
 def test_onto_context() -> None:
     ctx = Person.onto_context()
     assert "schema" in ctx
+
+
+def test_duplicate_property_prefers_nested() -> None:
+    """When FK and nested object share an ontology, nested wins."""
+
+    @onto_model(type_="schema:Employee", iri_template="http://example.org/employee/{id}")
+    class DualEmployee(SQLModel, OntoMixin, table=False):
+        id: int | None = Field(default=None, primary_key=True)
+        organization_id: int | None = onto_field(
+            default=None,
+            ontology="schema:worksFor",
+            related_model=Organization,
+        )
+        organization: Organization | None = onto_field(
+            ontology="schema:worksFor",
+            default=None,
+        )
+
+    org = Organization(id=2, name="Nested Org")
+    emp = DualEmployee(id=1, organization_id=1, organization=org)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        doc = emp.to_jsonld()
+    assert len(caught) == 1
+    works_for = doc["schema:worksFor"]
+    assert works_for["schema:name"] == "Nested Org"
+    assert works_for["@id"] == "http://example.org/org/2"
 
 
 def test_skips_fields_without_ontology_metadata(person: Person) -> None:
