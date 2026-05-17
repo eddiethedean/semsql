@@ -31,8 +31,8 @@ jobs:
       - name: Ruff format
         run: ruff format --check src tests
 
-      - name: Mypy
-        run: mypy src/semsql
+      - name: ty
+        run: ty check
 
       - name: Pytest with coverage
         run: pytest --cov=semsql --cov-report=term-missing --cov-fail-under=90

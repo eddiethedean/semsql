@@ -67,7 +67,7 @@ See [examples/fastapi_demo.py](examples/fastapi_demo.py).
 pip install -e ".[dev]"
 ruff check src tests
 ruff format src tests
-mypy src/semsql
+ty check
 pytest --cov=semsql --cov-fail-under=90
 ```
 

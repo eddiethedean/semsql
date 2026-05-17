@@ -31,7 +31,7 @@ dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
     "pytest-cov>=5",
-    "mypy>=1.8",
+    "ty>=0.0.37",
     "ruff>=0.4",
     "httpx>=0.27",
     "fastapi>=0.100",
@@ -64,16 +64,14 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
 
-[tool.mypy]
-python_version = "3.10"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
-files = ["src/semsql"]
+[tool.ty.environment]
+python-version = "3.10"
 
-[[tool.mypy.overrides]]
-module = ["rdflib.*", "sqlmodel.*"]
-ignore_missing_imports = true
+[tool.ty.src]
+include = ["src/semsql"]
+
+[tool.ty.analysis]
+replace-imports-with-any = ["rdflib.**", "sqlmodel.**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

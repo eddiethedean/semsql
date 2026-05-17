@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from sqlmodel import SQLModel
 
@@ -20,7 +20,7 @@ class OntoMixin:
 
     def to_jsonld(self, *, registry: PrefixRegistry | None = None) -> dict[str, Any]:
         """Export this instance as a JSON-LD document."""
-        return model_to_jsonld(self, registry=registry)  # type: ignore[arg-type]
+        return model_to_jsonld(cast(SQLModel, self), registry=registry)
 
     def to_rdf(
         self,
@@ -29,7 +29,7 @@ class OntoMixin:
         registry: PrefixRegistry | None = None,
     ) -> str:
         """Export this instance as an RDF string."""
-        return model_to_rdf(self, format=format, registry=registry)  # type: ignore[arg-type]
+        return model_to_rdf(cast(SQLModel, self), format=format, registry=registry)
 
     @classmethod
     def onto_context(cls, registry: PrefixRegistry | None = None) -> dict[str, Any]:

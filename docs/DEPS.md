@@ -108,7 +108,7 @@ PyLD significantly improves JSON-LD capabilities beyond basic RDFLib support.
 
 - Testing framework
 
-### mypy
+### ty
 
 - Static typing validation
 
@@ -150,7 +150,7 @@ graphdb = ["SPARQLWrapper", "neo4j"]
 ai = ["instructor", "pydantic-ai", "deeponto"]
 owl = ["Owlready2"]
 polars = ["polars"]
-dev = ["pytest", "mypy", "ruff", "mkdocs-material"]
+dev = ["pytest", "ty", "ruff", "mkdocs-material"]
 ```
 
 Install examples:

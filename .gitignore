@@ -9,6 +9,7 @@ build/
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+.ty_cache/
 .ruff_cache/
 .venv/
 venv/
