@@ -6,9 +6,9 @@ from typing import Any
 
 from sqlmodel import SQLModel
 
-from ontomodel.jsonld import class_context, model_to_jsonld
-from ontomodel.rdf import model_to_rdf
-from ontomodel.registry import PrefixRegistry
+from semsql.jsonld import class_context, model_to_jsonld
+from semsql.rdf import model_to_rdf
+from semsql.registry import PrefixRegistry
 
 
 class OntoMixin:

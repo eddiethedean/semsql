@@ -1,11 +1,11 @@
 [project]
-name = "ontomodel"
+name = "semsql"
 version = "0.1.0"
 description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
-authors = [{ name = "OntoModel Contributors" }]
+authors = [{ name = "SemSQL Contributors" }]
 keywords = ["sqlmodel", "json-ld", "rdf", "ontology", "semantic-web", "fastapi"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -39,16 +39,16 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/ontomodel/ontomodel#readme"
-Repository = "https://github.com/ontomodel/ontomodel"
-Issues = "https://github.com/ontomodel/ontomodel/issues"
+Documentation = "https://github.com/semsql/semsql#readme"
+Repository = "https://github.com/semsql/semsql"
+Issues = "https://github.com/semsql/semsql/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ontomodel"]
+packages = ["src/semsql"]
 
 [tool.hatch.build.targets.sdist]
 include = ["/src", "/tests", "/examples", "/docs"]
@@ -69,7 +69,7 @@ python_version = "3.10"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
-files = ["src/ontomodel"]
+files = ["src/semsql"]
 
 [[tool.mypy.overrides]]
 module = ["rdflib.*", "sqlmodel.*"]
@@ -83,13 +83,13 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
-source = ["ontomodel"]
+source = ["semsql"]
 branch = true
 
 [tool.coverage.report]
 omit = [
-    "src/ontomodel/__init__.py",
-    "src/ontomodel/fastapi/__init__.py",
+    "src/semsql/__init__.py",
+    "src/semsql/fastapi/__init__.py",
 ]
 exclude_lines = [
     "pragma: no cover",

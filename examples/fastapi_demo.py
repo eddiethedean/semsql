@@ -1,14 +1,14 @@
-"""Minimal FastAPI demo for OntoModel content negotiation."""
+"""Minimal FastAPI demo for SemSQL content negotiation."""
 
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
 from sqlmodel import Field, SQLModel
 
-from ontomodel import OntoMixin, onto_field, onto_model
-from ontomodel.fastapi import negotiate_onto_response
+from semsql import OntoMixin, onto_field, onto_model
+from semsql.fastapi import negotiate_onto_response
 
-app = FastAPI(title="OntoModel Demo")
+app = FastAPI(title="SemSQL Demo")
 
 
 @onto_model(type_="schema:Person", iri_template="http://example.org/person/{id}")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from ontomodel.rdf import media_type_for_format, normalize_format
+from semsql.rdf import media_type_for_format, normalize_format
 from tests.models import Person
 
 

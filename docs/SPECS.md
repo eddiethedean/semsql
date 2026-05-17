@@ -1,13 +1,13 @@
-# OntoModel Technical Specification
+# SemSQL Technical Specification
 
 ## Overview
 
-**ontomodel** is a semantic interoperability framework built on SQLModel and Pydantic. It lets developers enrich SQLModel models with ontology-aware metadata and export or import data using semantic web standards — without leaving familiar Python model definitions.
+**semsql** is a semantic interoperability framework built on SQLModel and Pydantic. It lets developers enrich SQLModel models with ontology-aware metadata and export or import data using semantic web standards — without leaving familiar Python model definitions.
 
 | | |
 |---|---|
-| PyPI name | `ontomodel` |
-| Import | `import ontomodel` |
+| PyPI name | `semsql` |
+| Import | `import semsql` |
 | Python | 3.10+ |
 
 ## Core Components
@@ -18,14 +18,14 @@
 4. JSON-LD serializer
 5. RDF graph adapter (RDFLib)
 6. SHACL generator
-7. FastAPI integration (`ontomodel.fastapi`)
+7. FastAPI integration (`semsql.fastapi`)
 8. Graph synchronization adapters
 
 ## Example API
 
 ```python
 from sqlmodel import Field, SQLModel
-from ontomodel import OntoMixin, onto_field
+from semsql import OntoMixin, onto_field
 
 
 class Person(SQLModel, OntoMixin, table=True):
@@ -78,7 +78,7 @@ RDFLib is used internally. Supported serializations:
 
 ## SHACL Generation
 
-OntoModel generates SHACL `NodeShape`s from SQLModel definitions.
+SemSQL generates SHACL `NodeShape`s from SQLModel definitions.
 
 | SQLModel / Python | SHACL |
 |-------------------|-------|
@@ -91,7 +91,7 @@ OntoModel generates SHACL `NodeShape`s from SQLModel definitions.
 
 ```python
 from fastapi import FastAPI
-from ontomodel.fastapi import OntoRouter
+from semsql.fastapi import OntoRouter
 
 app = FastAPI()
 app.include_router(OntoRouter(models=[Person]))
@@ -111,7 +111,7 @@ Operational persistence stays relational via SQLModel and SQLAlchemy. Ontology e
 ## Package Layout (proposed)
 
 ```text
-ontomodel/
+semsql/
   __init__.py          # OntoMixin, onto_field, PrefixRegistry
   jsonld.py
   rdf.py
@@ -129,7 +129,7 @@ ontomodel/
 - Named graph support
 - Ontology synchronization
 - Graph database replication
-- LLM extraction pipelines (`ontomodel[ai]`)
+- LLM extraction pipelines (`semsql[ai]`)
 - Entity resolution
 
 ## Design Principles

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from ontomodel.fastapi.negotiate import _parse_accept, negotiate_onto_response
+from semsql.fastapi.negotiate import _parse_accept, negotiate_onto_response
 from tests.models import Person
 
 

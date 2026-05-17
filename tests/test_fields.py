@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from ontomodel._meta import ONTO_META_KEY, get_onto_meta
-from ontomodel.fields import build_onto_extra, onto_field
+from semsql._meta import ONTO_META_KEY, get_onto_meta
+from semsql.fields import build_onto_extra, onto_field
 
 
 class Sample(SQLModel, table=False):

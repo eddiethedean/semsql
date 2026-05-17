@@ -1,17 +1,17 @@
-# OntoModel
+# SemSQL
 
 **Semantic interoperability for SQLModel** — enrich operational models with ontology metadata and export JSON-LD and RDF without leaving Python.
 
 ```bash
-pip install ontomodel
-pip install ontomodel[fastapi]   # optional API helpers
+pip install semsql
+pip install semsql[fastapi]   # optional API helpers
 ```
 
 ## Quick start
 
 ```python
 from sqlmodel import Field, SQLModel
-from ontomodel import OntoMixin, onto_field, onto_model
+from semsql import OntoMixin, onto_field, onto_model
 
 
 @onto_model(type_="schema:Person", iri_template="http://example.org/person/{id}")
@@ -31,13 +31,13 @@ print(person.to_rdf(format="turtle"))
 - `onto_model()` — declare RDF type and instance IRI templates on classes
 - `PrefixRegistry` — manage namespace prefixes for JSON-LD `@context`
 - `to_jsonld()` / `to_rdf()` — export instances to semantic web formats
-- FastAPI response helpers with content negotiation (`ontomodel[fastapi]`)
+- FastAPI response helpers with content negotiation (`semsql[fastapi]`)
 
 ## FastAPI
 
 ```python
 from fastapi import FastAPI, Request
-from ontomodel.fastapi import negotiate_onto_response
+from semsql.fastapi import negotiate_onto_response
 
 app = FastAPI()
 
@@ -53,7 +53,7 @@ See [examples/fastapi_demo.py](examples/fastapi_demo.py).
 
 - No RDF import or SHACL generation yet (planned for 0.2+)
 - Foreign-key-only relationships export as `@id` references, not nested objects
-- JSON-LD framing requires a future `ontomodel[jsonld]` extra (PyLD)
+- JSON-LD framing requires a future `semsql[jsonld]` extra (PyLD)
 
 ## Documentation
 
@@ -67,8 +67,8 @@ See [examples/fastapi_demo.py](examples/fastapi_demo.py).
 pip install -e ".[dev]"
 ruff check src tests
 ruff format src tests
-mypy src/ontomodel
-pytest --cov=ontomodel --cov-fail-under=90
+mypy src/semsql
+pytest --cov=semsql --cov-fail-under=90
 ```
 
 ## License

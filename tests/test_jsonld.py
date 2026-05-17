@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from ontomodel import OntoMixin, onto_field, onto_model
+from semsql import OntoMixin, onto_field, onto_model
 from tests.models import Employee, Person
 
 

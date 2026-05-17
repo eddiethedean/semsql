@@ -1,16 +1,16 @@
-# OntoModel Project Plan
+# SemSQL Project Plan
 
 ## Vision
 
-Build **ontomodel** — a Python package that combines SQLModel, Pydantic, FastAPI, and ontology tooling into a unified semantic application framework. Developers define operational database models once and automatically gain semantic interoperability through JSON-LD, RDF, SHACL, and ontology-aware APIs.
+Build **semsql** — a Python package that combines SQLModel, Pydantic, FastAPI, and ontology tooling into a unified semantic application framework. Developers define operational database models once and automatically gain semantic interoperability through JSON-LD, RDF, SHACL, and ontology-aware APIs.
 
 ```bash
-pip install ontomodel
+pip install semsql
 ```
 
 ## Core Thesis
 
-Traditional ontology tooling is operationally difficult, while FastAPI + SQLModel ecosystems are highly ergonomic. OntoModel bridges those worlds by adding ontology metadata and graph interoperability to normal Python web applications.
+Traditional ontology tooling is operationally difficult, while FastAPI + SQLModel ecosystems are highly ergonomic. SemSQL bridges those worlds by adding ontology metadata and graph interoperability to normal Python web applications.
 
 ## Primary Goals
 
@@ -86,14 +86,14 @@ Version 0.1 should focus on:
 
 ### v1.0
 
-- Stable public API for `ontomodel`
+- Stable public API for `semsql`
 - Production examples
 - Schema packs
 - Full documentation
 
 ## Long-Term Vision
 
-OntoModel becomes the operational semantic layer for Python applications:
+SemSQL becomes the operational semantic layer for Python applications:
 
 - Typed knowledge graphs
 - AI semantic memory systems

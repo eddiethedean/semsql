@@ -32,10 +32,10 @@ jobs:
         run: ruff format --check src tests
 
       - name: Mypy
-        run: mypy src/ontomodel
+        run: mypy src/semsql
 
       - name: Pytest with coverage
-        run: pytest --cov=ontomodel --cov-report=term-missing --cov-fail-under=90
+        run: pytest --cov=semsql --cov-report=term-missing --cov-fail-under=90
 
   fastapi-extra:
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
         run: pip install -e ".[fastapi]" pytest httpx
 
       - name: Verify fastapi subpackage imports
-        run: python -c "from ontomodel.fastapi import negotiate_onto_response; print('ok')"
+        run: python -c "from semsql.fastapi import negotiate_onto_response; print('ok')"

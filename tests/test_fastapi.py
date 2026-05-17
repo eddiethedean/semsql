@@ -6,7 +6,7 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from ontomodel.fastapi import (
+from semsql.fastapi import (
     JSONLDResponse,
     TurtleResponse,
     negotiate_onto_response,

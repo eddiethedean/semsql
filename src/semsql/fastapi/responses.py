@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi.responses import Response
 
-from ontomodel.rdf import media_type_for_format, normalize_format
+from semsql.rdf import media_type_for_format, normalize_format
 
 
 def _serialize_data(data: Any, fmt: str) -> tuple[str, str]:

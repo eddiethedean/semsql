@@ -1,12 +1,12 @@
-# OntoModel Dependency Ecosystem Assessment
+# SemSQL Dependency Ecosystem Assessment
 
 ## Overview
 
-This document evaluates recommended Python package dependencies and ecosystem integrations for **ontomodel**. The goal is to maintain a lightweight, Pythonic, operationally focused semantic interoperability framework centered on SQLModel and FastAPI.
+This document evaluates recommended Python package dependencies and ecosystem integrations for **semsql**. The goal is to maintain a lightweight, Pythonic, operationally focused semantic interoperability framework centered on SQLModel and FastAPI.
 
 ## Dependency Philosophy
 
-The `ontomodel` package should maintain:
+The `semsql` package should maintain:
 
 - A small and stable core
 - Optional extras for advanced integrations
@@ -89,7 +89,7 @@ PyLD significantly improves JSON-LD capabilities beyond basic RDFLib support.
 ### Instructor
 
 - Structured LLM extraction into Pydantic models
-- Strong alignment with OntoModel architecture
+- Strong alignment with SemSQL architecture
 
 ### PydanticAI
 
@@ -156,9 +156,9 @@ dev = ["pytest", "mypy", "ruff", "mkdocs-material"]
 Install examples:
 
 ```bash
-pip install ontomodel
-pip install ontomodel[fastapi,jsonld]
-pip install ontomodel[shacl,graphdb,ai]
+pip install semsql
+pip install semsql[fastapi,jsonld]
+pip install semsql[shacl,graphdb,ai]
 ```
 
 ## Strategic Recommendations
@@ -183,4 +183,4 @@ pip install ontomodel[shacl,graphdb,ai]
 - Neo4j
 - DeepOnto
 
-OntoModel should expose Pythonic model-centric APIs rather than RDF-native APIs. RDFLib should remain an internal implementation detail wherever possible.
+SemSQL should expose Pythonic model-centric APIs rather than RDF-native APIs. RDFLib should remain an internal implementation detail wherever possible.

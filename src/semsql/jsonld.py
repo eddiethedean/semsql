@@ -1,4 +1,4 @@
-"""JSON-LD serialization for OntoModel instances."""
+"""JSON-LD serialization for SemSQL instances."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 from sqlmodel import SQLModel
 
-from ontomodel._meta import (
+from semsql._meta import (
     _has_onto_mixin,
     build_instance_iri,
     get_model_onto_type,
@@ -20,7 +20,7 @@ from ontomodel._meta import (
     property_key,
     reference_iri,
 )
-from ontomodel.registry import PrefixRegistry
+from semsql.registry import PrefixRegistry
 
 
 def default_registry() -> PrefixRegistry:
