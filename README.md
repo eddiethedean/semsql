@@ -47,7 +47,7 @@ def get_person(person_id: int, request: Request):
     return negotiate_onto_response(request, person)
 ```
 
-See [examples/fastapi_demo.py](examples/fastapi_demo.py).
+See [examples/fastapi_demo.py](https://github.com/eddiethedean/ontosql/blob/main/examples/fastapi_demo.py).
 
 ## Limitations (0.1.0)
 
@@ -58,15 +58,15 @@ See [examples/fastapi_demo.py](examples/fastapi_demo.py).
 
 ## Documentation
 
-- [Roadmap](docs/ROADMAP.md)
-- [Technical specification](docs/SPECS.md)
-- [Project plan](docs/PLAN.md)
-- [Dependency assessment](docs/DEPS.md)
-- [Changelog](CHANGELOG.md)
+- [Roadmap](https://github.com/eddiethedean/ontosql/blob/main/docs/ROADMAP.md)
+- [Technical specification](https://github.com/eddiethedean/ontosql/blob/main/docs/SPECS.md)
+- [Project plan](https://github.com/eddiethedean/ontosql/blob/main/docs/PLAN.md)
+- [Dependency assessment](https://github.com/eddiethedean/ontosql/blob/main/docs/DEPS.md)
+- [Changelog](https://github.com/eddiethedean/ontosql/blob/main/CHANGELOG.md)
 
 ## Development
 
-See [Releasing](docs/RELEASING.md) for the version publish checklist.
+See [Releasing](https://github.com/eddiethedean/ontosql/blob/main/docs/RELEASING.md) for the version publish checklist.
 
 ```bash
 pip install -e ".[dev]"
@@ -78,4 +78,4 @@ pytest --cov=ontosql --cov-fail-under=100
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://github.com/eddiethedean/ontosql/blob/main/LICENSE).
