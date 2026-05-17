@@ -1,4 +1,8 @@
-"""FastAPI integration (optional extra)."""
+"""FastAPI integration (optional extra).
+
+Requires semantic instances with export methods (planned 0.2.x). Negotiation helpers
+remain available for dict/str payloads and future OntoModel export.
+"""
 
 from __future__ import annotations
 

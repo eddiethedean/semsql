@@ -1,145 +1,117 @@
 # OntoSQL Dependency Ecosystem Assessment
 
+> **Documentation describes 0.2.0 (in development).** Dependency layout may change when the rewrite lands on `main`.
+
 ## Overview
 
-This document evaluates recommended Python package dependencies and ecosystem integrations for **ontosql**. The goal is to maintain a lightweight, Pythonic, operationally focused semantic interoperability framework centered on SQLModel and FastAPI.
+This document evaluates Python dependencies for **ontosql** as a **semantic mapper and session layer** over SQL, with JSON-LD/RDF export as a derivative. The goal is a small core, optional extras, and Pythonic APIs — not a heavyweight semantic-web framework.
 
-## Dependency Philosophy
+## Dependency philosophy
 
-The `ontosql` package should maintain:
+- Small, stable **core** (semantic + map + session + export)
+- **SQLModel** for physical tables only; **Pydantic** for semantic entities
+- RDFLib as an **internal** serialization backend where possible
+- Optional extras for FastAPI, SHACL, advanced JSON-LD, graph DBs, AI
+- No magical 1:1 table-to-ontology inference
 
-- A small and stable core
-- Optional extras for advanced integrations
-- Strong SQLModel compatibility
-- Minimal developer friction
-- Pythonic APIs over RDF-native complexity
+## Core dependencies (target 0.2)
 
-The package should avoid becoming a heavyweight semantic-web framework.
+### Pydantic v2
 
-## Core Dependencies
+- **Semantic models** (`OntoModel`, validation, partial updates)
+- JSON schema for OpenAPI enrichment (0.3+)
+- Primary type surface for application code
 
 ### SQLModel
 
-- Primary operational model layer
-- SQLAlchemy + Pydantic integration
-- FastAPI-native ergonomics
+- **Physical models** (`table=True`)
+- SQLAlchemy engine and session integration
+- Familiar ergonomics for FastAPI teams
 
-### Pydantic
+### SQLAlchemy 2.x
 
-- Validation and serialization
-- Type system foundation
-- JSON schema generation
+- Accessed via SQLModel
+- Column expressions, joins, and compiled statements for `OntoSession`
+- Core of the mapper compile path
 
 ### typing-extensions
 
-- Advanced typing compatibility
+- Typing compatibility on Python 3.10+
 
 ### RDFLib
 
-- RDF graph backend
-- Serialization and parsing
-- Namespace handling
+- RDF graph construction for export
+- Turtle, JSON-LD, N-Triples, RDF/XML serializers
+- Namespace handling; keep behind `ontosql.export` where practical
 
-## FastAPI Ecosystem Extras
+## FastAPI ecosystem (optional extra)
 
 ### FastAPI
 
-- Ontology-aware API integration
-- Content negotiation
-- OpenAPI enhancement
+- Routes returning semantic instances
+- Dependency-injected `OntoSession`
+- Future `OntoRouter` (0.3)
 
 ### orjson
 
-- High-performance JSON serialization
-- Efficient JSON-LD support
+- Fast JSON-LD response bodies when `ontosql[fastapi]` is installed
 
-## Semantic Validation Extras
+## Semantic validation (future extra)
 
 ### pySHACL
 
-- SHACL validation support
-- RDF graph validation
-- Enterprise interoperability validation
+- Validate graphs generated from maps + session
+- Planned for 0.4 (`ontosql[shacl]`)
 
-## JSON-LD Ecosystem
+## JSON-LD ecosystem (future extra)
 
 ### PyLD
 
-- JSON-LD compaction
-- Framing
-- Expansion
-- Canonicalization
+- Compaction, framing, expansion beyond RDFLib basics
+- Planned as `ontosql[jsonld]` (0.3+)
 
-PyLD significantly improves JSON-LD capabilities beyond basic RDFLib support.
-
-## Graph Database Integrations
+## Graph database integrations (future)
 
 ### SPARQLWrapper
 
-- SPARQL endpoint communication
-- RDF graph database interoperability
+- Remote SPARQL endpoints
 
-### Neo4j Python Driver
+### Neo4j Python driver
 
-- Property graph integrations
-- Hybrid knowledge graph architectures
+- Hybrid SQL + property graph architectures
 
-## AI and LLM Ecosystem
+Not committed until graph sync adapters are specified in [ROADMAP.md](ROADMAP.md).
 
-### Instructor
+## AI and LLM ecosystem (long-term)
 
-- Structured LLM extraction into Pydantic models
-- Strong alignment with OntoSQL architecture
+### Instructor / PydanticAI
 
-### PydanticAI
-
-- Typed AI agent systems
-- Structured ontology extraction
+- Structured extraction into `OntoModel` instances
+- Aligns with semantic-layer-first design
 
 ### DeepOnto
 
-- Ontology alignment
-- Semantic embeddings
-- AI-assisted ontology workflows
+- Ontology alignment and embeddings (research-oriented)
 
-## Developer Tooling
+## Developer tooling
 
-### pytest
+| Package | Role |
+|---------|------|
+| pytest | Tests |
+| pytest-cov | Coverage |
+| pytest-xdist | Parallel runs |
+| ty | Static typing (`src/ontosql`) |
+| ruff | Lint and format |
+| httpx | FastAPI integration tests |
+| hatchling | Wheel build |
 
-- Testing framework
+### mkdocs-material (future)
 
-### ty
+- Documentation site for 1.0 — not required for 0.2 docs-in-repo
 
-- Static typing validation
+## Extras in pyproject.toml
 
-### ruff
-
-- Linting and formatting
-
-### mkdocs-material
-
-- Documentation platform
-- Developer experience optimization
-
-## Future Integrations
-
-### Owlready2
-
-- OWL reasoning support
-- Ontology manipulation
-
-### networkx
-
-- Graph algorithms
-- Graph traversal
-
-### Polars
-
-- DataFrame interoperability
-- Typed ETL pipelines
-- Ontology-aware DataFrame workflows
-
-## Extras in pyproject.toml (0.1.0)
+**Current on PyPI (0.1.0 tree until 0.2 ships):**
 
 ```toml
 [project.optional-dependencies]
@@ -147,8 +119,16 @@ fastapi = ["fastapi>=0.100", "orjson>=3.9"]
 dev = ["pytest", "pytest-cov", "ty", "ruff", "httpx", "fastapi", "orjson", ...]
 ```
 
-- **`fastapi`** — installs FastAPI and orjson; `ontosql.fastapi` uses orjson for JSON-LD responses when available
-- **`dev`** — test, lint, and type-check tooling
+**Target 0.2+ (not all defined yet):**
+
+```toml
+fastapi = ["fastapi>=0.100", "orjson>=3.9"]
+# Planned:
+# jsonld = ["PyLD"]
+# shacl = ["pySHACL"]
+# graphdb = ["SPARQLWrapper", "neo4j"]
+# ai = ["instructor", "pydantic-ai"]
+```
 
 Install examples:
 
@@ -158,39 +138,46 @@ pip install ontosql[fastapi]
 pip install -e ".[dev]"
 ```
 
-## Proposed future extras
+## Layer → dependency map
 
-The following are **not** yet defined in `pyproject.toml` but are under consideration:
+```mermaid
+flowchart LR
+    Pydantic["Pydantic\nsemantic"]
+    SQLModel["SQLModel\nphysical"]
+    Session["OntoSession\ncompile"]
+    RDFLib["RDFLib\nexport"]
+    FastAPI["FastAPI\noptional"]
 
-```toml
-jsonld = ["PyLD"]           # framing and advanced JSON-LD
-shacl = ["pySHACL"]         # SHACL validation
-graphdb = ["SPARQLWrapper", "neo4j"]
-ai = ["instructor", "pydantic-ai", "deeponto"]
-owl = ["Owlready2"]
-polars = ["polars"]
+    Pydantic --> Session
+    SQLModel --> Session
+    Session --> RDFLib
+    Session --> FastAPI
 ```
 
-## Strategic Recommendations
+## Strategic recommendations
 
 **Strongest foundational dependencies:**
 
-- SQLModel
-- Pydantic
-- RDFLib
+- Pydantic (semantic)
+- SQLModel + SQLAlchemy (physical + compile)
+- RDFLib (export)
 
 **Highest-value optional integrations:**
 
-- FastAPI
-- PyLD
-- pySHACL
-- Instructor
+- FastAPI + orjson
+- PyLD (framing)
+- pySHACL (validation)
 
-**Highest long-term strategic opportunities:**
+**Highest long-term opportunities:**
 
-- PydanticAI
-- Polars
-- Neo4j
-- DeepOnto
+- PydanticAI / Instructor
+- Graph DB adapters
+- Polars for ETL pipelines over semantic rows
 
-OntoSQL should expose Pythonic model-centric APIs rather than RDF-native APIs. RDFLib should remain an internal implementation detail wherever possible.
+OntoSQL should expose **semantic model and session APIs**; RDFLib should remain an implementation detail for application developers except when calling `to_rdf()` or using FastAPI negotiation helpers.
+
+## Related documents
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [SPECS.md](SPECS.md)
+- [ROADMAP.md](ROADMAP.md)

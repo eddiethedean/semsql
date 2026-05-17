@@ -1,12 +1,12 @@
 [project]
 name = "ontosql"
-version = "0.1.0"
-description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields (import ontosql)"
+version = "0.2.0"
+description = "Semantic data access for SQL — map ontology-shaped models onto real schemas with explicit OntoMapper bindings (import ontosql)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [{ name = "OntoSQL Contributors" }]
-keywords = ["sqlmodel", "json-ld", "rdf", "ontology", "semantic-web", "fastapi"]
+keywords = ["sqlmodel", "pydantic", "mapper", "ontology", "obda", "json-ld", "rdf", "semantic-web", "fastapi"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -37,6 +37,7 @@ dev = [
     "httpx>=0.27",
     "fastapi>=0.100",
     "orjson>=3.9",
+    "aiosqlite>=0.20",
 ]
 
 [project.urls]
@@ -91,6 +92,11 @@ branch = true
 omit = [
     "src/ontosql/__init__.py",
     "src/ontosql/fastapi/__init__.py",
+    "src/ontosql/semantic/__init__.py",
+    "src/ontosql/mapping/__init__.py",
+    "src/ontosql/compile/__init__.py",
+    "src/ontosql/query/__init__.py",
+    "src/ontosql/session/__init__.py",
 ]
 exclude_lines = [
     "pragma: no cover",

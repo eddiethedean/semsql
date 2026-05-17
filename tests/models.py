@@ -1,39 +1,56 @@
-"""Shared SQLModel fixtures for tests."""
+"""Shared physical, semantic, and mapper fixtures for tests."""
 
 from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from ontosql import OntoMixin, onto_field, onto_model
+from ontosql import Map, OntoMapper, OntoModel, onto_property
 
 
-@onto_model(type_="schema:Person", iri_template="http://example.org/person/{id}")
-class Person(SQLModel, OntoMixin, table=False):
+class OrgRow(SQLModel, table=True):
+    __tablename__ = "orgs"
     id: int | None = Field(default=None, primary_key=True)
-    name: str = onto_field(ontology="schema:name")
-    email: str | None = onto_field(ontology="schema:email", default=None)
+    name: str
 
 
-@onto_model(type_="schema:Organization", iri_template="http://example.org/org/{id}")
-class Organization(SQLModel, OntoMixin, table=False):
+class PersonRow(SQLModel, table=True):
+    __tablename__ = "people"
     id: int | None = Field(default=None, primary_key=True)
-    name: str = onto_field(ontology="schema:name")
+    name: str
+    org_id: int | None = Field(default=None, foreign_key="orgs.id")
 
 
-@onto_model(type_="schema:Employee", iri_template="http://example.org/employee/{id}")
-class Employee(SQLModel, OntoMixin, table=False):
-    id: int | None = Field(default=None, primary_key=True)
-    title: str = onto_field(ontology="schema:jobTitle")
-    organization: Organization | None = onto_field(ontology="schema:worksFor", default=None)
+class Organization(OntoModel):
+    type_iri = "schema:Organization"
+    iri_template = "https://data.example.org/org/{id}"
+
+    id: int
+    name: str = onto_property("schema:name")
 
 
-@onto_model(type_="schema:Employee", iri_template="http://example.org/employee/{id}")
-class EmployeeFk(SQLModel, OntoMixin, table=False):
-    id: int | None = Field(default=None, primary_key=True)
-    title: str = onto_field(ontology="schema:jobTitle")
-    organization_id: int | None = onto_field(
-        default=None,
-        foreign_key="organization.id",
-        ontology="schema:worksFor",
-        related_model=Organization,
+class Person(OntoModel):
+    type_iri = "schema:Person"
+    iri_template = "https://data.example.org/person/{id}"
+
+    id: int
+    name: str = onto_property("schema:name")
+    employer: Organization | None = onto_property("schema:worksFor")
+
+
+class OrganizationMap(OntoMapper[Organization]):
+    entity = Organization
+    id = Map(OrgRow.id)
+    name = Map(OrgRow.name, property="schema:name")
+
+
+class PersonMap(OntoMapper[Person]):
+    entity = Person
+    id = Map(PersonRow.id)
+    name = Map(PersonRow.name, property="schema:name")
+    employer = Map.nested(
+        Organization,
+        join=PersonRow.org_id == OrgRow.id,
+        target=OrgRow,
+        nested_map=OrganizationMap,
+        property="schema:worksFor",
     )

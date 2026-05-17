@@ -1,103 +1,97 @@
 # OntoSQL Project Plan
 
+> **Documentation describes 0.2.0 (in development).** [0.1.0 is deprecated](DEPRECATED-0.1.md).
+
 ## Vision
 
-Build **ontosql** — a Python package that combines SQLModel, Pydantic, FastAPI, and ontology tooling into a unified semantic application framework. Developers define operational database models once and automatically gain semantic interoperability through JSON-LD, RDF, SHACL, and ontology-aware APIs.
+Build **ontosql** — a Python package that lets teams use **semantic, ontology-shaped models** for application logic while persisting to **existing SQL schemas** through explicit maps. Developers keep SQLModel for tables, Pydantic for concepts, and gain JSON-LD, RDF, and FastAPI interoperability from the same definitions.
 
 ```bash
 pip install ontosql
 ```
 
-## Core Thesis
+## Core thesis
 
-Traditional ontology tooling is operationally difficult, while FastAPI + SQLModel ecosystems are highly ergonomic. OntoSQL bridges those worlds by adding ontology metadata and graph interoperability to normal Python web applications.
+**Pythonic semantic CRUD over SQL via explicit maps.**
 
-## Primary Goals
+Traditional ontology tooling assumes graph-native storage or 1:1 class-to-table mappings. Real platforms have legacy schemas, bridge tables, and multiple views of the same data. OntoSQL compiles semantic operations to SQL instead of pretending one SQLModel class is one RDF resource.
 
-- Preserve SQLModel ergonomics
-- Add ontology metadata to fields and models
-- Enable JSON-LD and RDF export/import
-- Generate SHACL shapes automatically
-- Integrate deeply with FastAPI
-- Support graph database synchronization
-- Remain Pythonic and developer-friendly
+## Primary goals
 
-## Target Users
+- **Mapper-first** — reviewable bindings between semantic fields and SQL (columns, joins, nested maps)
+- **Pydantic ergonomics** — semantic models are what application code imports
+- **SQLModel for physical schema** — tables and FKs stay explicit and migration-friendly
+- **Session runtime** — `get`, `find`, `save`, `delete` without hand-written JOIN strings for common cases
+- **Interop as derivative** — JSON-LD, RDF, SHACL, and FastAPI negotiation from map metadata
+- **Standards without RDF ceremony** — RDFLib stays internal where possible
 
-- Enterprise data platform teams
-- Knowledge graph engineers
-- AI/RAG platform developers
-- FastAPI backend teams
+## Target users
+
+- Enterprise data platform teams bridging operational SQL and knowledge graphs
+- Knowledge graph engineers exposing relational data semantically
+- AI/RAG platform developers needing typed, IRI-identified entities
+- FastAPI backend teams with metadata or interoperability requirements
 - Government and defense metadata systems
-- Research and biomedical platforms
+- Research and biomedical platforms with ontology constraints
 
-## MVP Scope
+## MVP scope (0.2.0)
 
-Version 0.1 should focus on:
+Version 0.2.0 focuses on:
 
-- `OntoMixin`
-- `onto_field()`
-- JSON-LD export
-- RDFLib graph export
-- `PrefixRegistry`
-- FastAPI content negotiation
+- `OntoModel` and `onto_property` (semantic layer)
+- `OntoMapper`, `Map`, `Map.nested` (mapping layer)
+- `OntoSession` read path: `get`, `find`, semantic filters
+- `PrefixRegistry` (IRI and JSON-LD context)
+- Removal of 0.1 export-on-table API
+- Architecture and specification documentation
 
-## Non-Goals for v1
+Write path (`save`, `delete`, cascades) follows in 0.2.x / 0.3 — see [ROADMAP.md](ROADMAP.md).
+
+## Non-goals
 
 - Full OWL reasoning engine
-- Native graph database query language
+- Native graph database as the primary store
 - Complex ontology editing UI
-- Replacing RDF-native tooling like Protégé
+- Replacing Protégé or RDF-native tooling
+- Magical inference from SQLAlchemy models to ontology classes without maps
+- Owning Alembic or schema migration workflows
 
-## Suggested Stack
+## Suggested stack
 
 | Layer | Packages |
 |-------|----------|
-| Models | SQLModel, Pydantic v2 |
-| API | FastAPI |
-| Graph | RDFLib |
-| Validation | pySHACL |
-| HTTP | httpx |
+| Semantic models | Pydantic v2 |
+| Physical models | SQLModel, SQLAlchemy 2.x |
+| Runtime | OntoSQL session + compile |
+| API | FastAPI (optional extra) |
+| Graph serialization | RDFLib |
+| Validation (future) | pySHACL |
+| HTTP (tests) | httpx |
 | Typing | typing_extensions |
 
-## Roadmap
+## Roadmap summary
 
-### v0.1 (released)
+| Version | Focus |
+|---------|--------|
+| **0.2.0** | Mapper + session read; deprecate 0.1 |
+| **0.2.x / 0.3** | Write path, export, FastAPI router |
+| **0.4** | SHACL, RDF import, graph sync |
+| **1.0** | Stable API, docs site, production examples |
 
-- Ontology field metadata (`onto_field`, `@onto_model`)
-- JSON-LD serialization (including typed literals and duplicate-property handling)
-- RDF export (Turtle, JSON-LD, N-Triples, RDF/XML)
-- `PrefixRegistry`
-- FastAPI content negotiation and response classes (`ontosql[fastapi]`)
+Details: [ROADMAP.md](ROADMAP.md). API contract: [SPECS.md](SPECS.md).
 
-### v0.2
+## Long-term vision
 
-- SHACL generation
-- RDF import
-- Extended prefix / vocabulary management
+OntoSQL becomes the default **operational semantic layer** for Python + SQL:
 
-### v0.3
+- Typed knowledge graphs backed by Postgres (or any SQLAlchemy dialect)
+- AI semantic memory with stable IRIs
+- Metadata governance and standards-compliant export
+- Enterprise interoperability without abandoning relational operations
 
-- FastAPI `OntoRouter` and OpenAPI semantic enrichment
+## Related documents
 
-### v0.4
-
-- Graph synchronization adapters
-- SPARQL endpoint publishing
-
-### v1.0
-
-- Stable public API for `ontosql`
-- Production examples
-- Schema packs
-- Full documentation
-
-## Long-Term Vision
-
-OntoSQL becomes the operational semantic layer for Python applications:
-
-- Typed knowledge graphs
-- AI semantic memory systems
-- Metadata governance
-- Enterprise interoperability
-- LLM extraction pipelines
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [SPECS.md](SPECS.md)
+- [DEPS.md](DEPS.md)
+- [DEPRECATED-0.1.md](DEPRECATED-0.1.md)

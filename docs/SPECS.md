@@ -1,155 +1,269 @@
 # OntoSQL Technical Specification
 
-## Overview
+> **Target API (0.2.0).** This document describes the 0.2 contract. [0.1.0 is deprecated](DEPRECATED-0.1.md). Labels like *0.2.0-alpha* mark what ships in each milestone.
 
-**ontosql** is a semantic interoperability framework built on SQLModel and Pydantic. It lets developers enrich SQLModel models with ontology-aware metadata and export or import data using semantic web standards — without leaving familiar Python model definitions.
+## Overview
 
 | | |
 |---|---|
 | PyPI name | `ontosql` |
 | Import | `import ontosql` |
 | Python | 3.10+ |
+| Thesis | Semantic CRUD over SQL via explicit maps |
 
-## Implementation status (0.1.0)
+**ontosql** is a semantic data access layer for Python: Pydantic semantic models, SQLModel physical tables, declarative `OntoMapper` bindings, and `OntoSession` that compiles operations to SQL. JSON-LD, RDF, and FastAPI responses are derived from the same mapping — not from annotating table rows.
 
-### Implemented
+See [ARCHITECTURE.md](ARCHITECTURE.md) for layers, glossary, and design rationale.
 
-1. `OntoMixin` — mixin for SQLModel classes (`to_jsonld`, `to_rdf`, `onto_context`)
-2. `onto_field()` / `@onto_model` — field and class ontology metadata
-3. `PrefixRegistry` — CURIE expansion, compaction, JSON-LD `@context`
-4. JSON-LD serializer — nested objects, FK references, typed literals (`datetime`, `UUID`, `Decimal`, `Enum`, tuples)
-5. RDF export via RDFLib (Turtle, JSON-LD, N-Triples, RDF/XML)
-6. FastAPI integration (`ontosql.fastapi`) — response classes and `negotiate_onto_response` content negotiation
+## Implementation phases
 
-### Planned (0.2+)
+| Phase | Scope |
+|-------|--------|
+| **0.2.0-alpha** | Mapper registry, `get` / `find`, basic semantic filters, remove 0.1 public API |
+| **0.2.x / 0.3** | `save` / `delete`, nested cascade policies, partial updates |
+| **0.3** | `OntoRouter`, OpenAPI enrichment, bulk `find` |
+| **0.4+** | SHACL from maps, RDF import, graph sync extras |
 
-7. SHACL shape generation
-8. RDF → SQLModel import
-9. `OntoRouter` and OpenAPI semantic enrichment
-10. Graph synchronization adapters
-11. JSON-LD framing (PyLD extra)
+---
 
-## Example API
+## Semantic models
 
-```python
-from sqlmodel import Field, SQLModel
-from ontosql import OntoMixin, onto_field
+### `OntoModel`
 
-
-class Person(SQLModel, OntoMixin, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-
-    name: str = onto_field(
-        ontology="schema:name",
-    )
-```
-
-Export:
+Base class for semantic entities (Pydantic v2).
 
 ```python
-person = Person(id=1, name="Ada")
-person.to_jsonld()
-person.to_rdf(format="turtle")
+class Person(OntoModel):
+    type_iri = "schema:Person"
+    iri_template = "https://data.example.org/person/{id}"
+
+    id: int
+    name: str = onto_property("schema:name")
+    employer: Organization | None = onto_property("schema:worksFor")
 ```
 
-## Ontology Field Metadata
+Class attributes:
 
-`onto_field()` wraps SQLModel `Field()` and stores ontology metadata in `json_schema_extra`.
+| Attribute | Description |
+|-----------|-------------|
+| `type_iri` | RDF class CURIE or IRI (`@type`) |
+| `iri_template` | Instance `@id` template; `{field}` placeholders from semantic fields |
+| `registry` | Optional class-level `PrefixRegistry` override |
 
-Supported keys:
+### `onto_property`
+
+Field helper attaching ontology metadata to semantic fields.
 
 | Key | Description |
 |-----|-------------|
-| `ontology` | Property IRI or CURIE (e.g. `schema:name`) |
+| `property` | Property CURIE or IRI (positional arg) |
 | `datatype` | XSD or other datatype IRI |
 | `iri` | Explicit property IRI override |
-| `inverse` | Inverse property for relationships |
 | `language` | Language tag for literals |
-| `graph` | Named graph IRI |
+| `graph` | Named graph IRI (export) |
 
-## JSON-LD Support
+---
 
-- Automatic `@context` generation
-- `@id` and `@type` handling
-- Compact IRIs via `PrefixRegistry`
-- Nested relationship serialization (prefer nested object over FK when both map to the same property)
-- JSON-native coercion for `datetime`, `date`, `UUID`, `Decimal`, `Enum`, and `tuple` values
-- Optional framing (PyLD extra, planned)
+## Physical models
 
-## RDF Support
-
-RDFLib is used internally. Supported serializations:
-
-- Turtle
-- JSON-LD
-- RDF/XML
-- N-Triples
-
-## SHACL Generation (planned)
-
-SHACL `NodeShape` generation from SQLModel definitions is planned for 0.2+.
-
-## FastAPI Integration (0.1.0)
+SQLModel classes with `table=True` mirror the database. They are **not** semantic entities.
 
 ```python
-from fastapi import FastAPI, Request
-from ontosql.fastapi import negotiate_onto_response
-
-app = FastAPI()
-
-@app.get("/person/{person_id}")
-def get_person(person_id: int, request: Request):
-  ...
-  return negotiate_onto_response(request, person)
+class PersonRow(SQLModel, table=True):
+    __tablename__ = "people"
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    org_id: int | None = Field(default=None, foreign_key="orgs.id")
 ```
 
-Implemented in 0.1.0:
+- Migrations remain user-owned (Alembic, etc.).
+- Unmapped columns are never touched by semantic CRUD unless bound in a map.
 
-- Content negotiation (`application/ld+json`, `text/turtle`, `application/n-triples`, `application/rdf+xml`)
-- JSON-LD and RDF response classes (`JSONLDResponse`, `TurtleResponse`, etc.)
-- `orjson` used for JSON-LD bodies when installed (`ontosql[fastapi]`)
+---
 
-Planned:
+## Mapping
 
-- `OntoRouter` for auto-generated CRUD routes
-- OpenAPI enrichment with semantic metadata
+### `OntoMapper`
 
-## Persistence Model
+Declares how a semantic entity maps to SQL.
 
-Operational persistence stays relational via SQLModel and SQLAlchemy. Ontology export and import are an interoperability layer on top of the database — they do not replace it.
+```python
+class PersonMap(OntoMapper[Person]):
+    entity = Person
 
-## Package Layout (0.1.0)
+    id = Map(PersonRow.id)
+    name = Map(PersonRow.name, property="schema:name")
+    employer = Map.nested(
+        Organization,
+        join=(PersonRow.org_id == OrgRow.id),
+        target=OrgRow,
+        nested_map=OrganizationMap,
+        property="schema:worksFor",
+    )
+```
+
+### `Map` bindings
+
+| Binding | Use |
+|---------|-----|
+| `Map(column)` | Direct column |
+| `Map(expr, property=...)` | SQLAlchemy column element |
+| `Map.nested(...)` | Join + nested semantic type via another mapper |
+| `Map.computed(...)` | Read-only semantic field from SQL expression *(planned)* |
+
+### Cascade policies (write path — 0.2.x / 0.3)
+
+Nested `save` behavior is **explicit** on `Map.nested`:
+
+| Policy | Behavior |
+|--------|----------|
+| `link` | Update FK only; nested row must exist |
+| `upsert` | Insert or update nested entity |
+| `replace` | Replace nested association |
+| `ignore` | Do not persist nested changes |
+
+Default for new maps: `link` (fail closed on ambiguous graphs).
+
+### Registry
+
+- Register mappers with `OntoSession(maps=[...])` or a global registry helper *(API TBD)*.
+- One physical table may have multiple mappers.
+- One mapper per semantic entity type.
+
+---
+
+## Session
+
+### `OntoSession`
+
+Unit of work bound to a SQLAlchemy/SQLModel engine.
+
+```python
+async with OntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
+    ...
+```
+
+| Method | Phase | Description |
+|--------|-------|-------------|
+| `get(entity, *, id=..., iri=...)` | 0.2.0-alpha | Load one instance by primary key or IRI |
+| `find(entity, *, where=..., order_by=..., limit=..., offset=...)` | 0.2.0-alpha | Query with semantic field expressions |
+| `save(instance)` | 0.2.x / 0.3 | Insert or update; returns hydrated instance |
+| `delete(instance)` | 0.2.x / 0.3 | Delete per map delete plan |
+| `execute_sql(...)` | 0.2.0-alpha | Escape hatch for raw SQL |
+
+- Transactions: one transaction per `async with` block; explicit rollback on exception.
+- Identity: optional identity map so repeated `get` in one session returns the same object *(planned)*.
+
+### Query expressions
+
+Filters reference **semantic** attributes; the session compiles joins from the mapper.
+
+```python
+await session.find(Person, where=Person.name.startswith("A"), limit=20)
+```
+
+Supported operators (target): comparisons, `startswith`, `in_`, `is_null`, boolean `&` / `|`. Unsupported expressions raise at compile time.
+
+---
+
+## `PrefixRegistry`
+
+Retained from 0.1 (reimplemented against semantic/map metadata):
+
+- CURIE `expand` / `compact`
+- JSON-LD `@context` via `context_dict()`
+- Copy-on-write `with_prefix`, `freeze()`
+
+Used by session (IRI resolution), export, and FastAPI responses.
+
+---
+
+## Export
+
+Export operates on **semantic instances** using mapper + `onto_property` metadata.
+
+```python
+person.to_jsonld(registry=None) -> dict
+person.to_rdf(format="turtle", registry=None) -> str
+```
+
+| Format | Notes |
+|--------|--------|
+| JSON-LD | `@context`, `@id`, `@type`, nested objects |
+| Turtle, N-Triples, RDF/XML | Via RDFLib |
+| Literals | `datetime`, `date`, `UUID`, `Decimal`, `Enum`, `tuple` coercion |
+
+RDFLib remains an implementation detail; users interact with Python models and strings.
+
+---
+
+## FastAPI (`ontosql[fastapi]`)
+
+```python
+from ontosql.fastapi import negotiate_onto_response
+
+return negotiate_onto_response(request, semantic_instance)
+```
+
+| MIME type | Response |
+|-----------|----------|
+| `application/ld+json` | JSON-LD |
+| `text/turtle` | Turtle |
+| `application/n-triples` | N-Triples |
+| `application/rdf+xml` | RDF/XML |
+
+- RFC 7231-style `Accept` parsing (`q`, `charset`, `q=0` rejection).
+- `orjson` for JSON-LD bodies when installed.
+
+**0.3:** `OntoRouter` for CRUD routes; OpenAPI semantic enrichment.
+
+---
+
+## Target package layout
 
 ```text
 src/ontosql/
-  __init__.py          # OntoMixin, onto_field, PrefixRegistry
-  _meta.py             # introspection and JSON-LD value coercion
-  decorator.py         # onto_model
-  fields.py            # onto_field
-  mixin.py
-  jsonld.py
-  rdf.py
-  registry.py
+  __init__.py
+  semantic/       # OntoModel, onto_property
+  physical/       # helpers for SQLModel registration (optional)
+  mapping/        # OntoMapper, Map, registry
+  compile/        # SQLAlchemy expression builders
+  session/        # OntoSession, load strategies
+  query/          # semantic expressions
+  export/         # jsonld, rdf (from semantic + map)
+  registry.py     # PrefixRegistry
   fastapi/
-    __init__.py
     negotiate.py
     responses.py
 ```
 
-## Future Extensions
+Current `main` may still reflect 0.1 layout until the rewrite merges.
 
-- SPARQL query layer
-- Named graph support
-- Ontology synchronization
-- Graph database replication
-- LLM extraction pipelines (`ontosql[ai]`)
-- Entity resolution
+---
 
-## Design Principles
+## Anti-patterns
 
-- Pythonic APIs first
-- Operational simplicity
-- Standards compliance (JSON-LD, RDF, SHACL)
-- Explicit over magical
-- SQLModel compatibility
-- Progressive enhancement via optional extras
+Do **not**:
+
+- Use `table=True` on semantic `OntoModel` classes
+- Assume one SQL table per ontology class
+- Call `to_jsonld()` on SQLModel row instances without a session/map
+- Map two semantic fields to the same property without a documented resolution rule
+- Rely on automatic join inference without an explicit `Map.nested`
+
+---
+
+## Design principles
+
+- Pythonic models first — semantic types are what you import in app code
+- Explicit over magical — maps are reviewable data
+- SQL is compiled, not hand-written for the happy path
+- Standards compliance for **export** (JSON-LD, RDF); SHACL validation planned
+- Progressive enhancement via optional extras (`fastapi`, future `shacl`, `jsonld`)
+
+## Related documents
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [ROADMAP.md](ROADMAP.md)
+- [DEPS.md](DEPS.md)
+- [DEPRECATED-0.1.md](DEPRECATED-0.1.md)

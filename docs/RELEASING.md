@@ -6,7 +6,8 @@ Checklist for publishing a new version.
 
 1. Ensure `version` in `pyproject.toml` matches the release tag.
 2. Update `CHANGELOG.md` (move items from `[Unreleased]` to a new version section).
-3. Run the full CI suite locally:
+3. For **major** releases (e.g. 0.2.0): confirm README, [SPECS.md](SPECS.md), [ARCHITECTURE.md](ARCHITECTURE.md), and CHANGELOG breaking sections are aligned.
+4. Run the full CI suite locally:
 
    ```bash
    pip install -e ".[dev]"
@@ -16,7 +17,7 @@ Checklist for publishing a new version.
    pytest --cov=ontosql --cov-fail-under=100
    ```
 
-4. Build and smoke-test the wheel:
+5. Build and smoke-test the wheel:
 
    ```bash
    pip install build
@@ -28,11 +29,11 @@ Checklist for publishing a new version.
 ## GitHub release
 
 ```bash
-git tag -a v0.1.0 -m "Release 0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "Release 0.2.0"
+git push origin v0.2.0
 ```
 
-Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` section.
+Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` section. For 0.2.0, call out breaking removal of the 0.1 API and link to [DEPRECATED-0.1.md](DEPRECATED-0.1.md).
 
 ## PyPI
 
@@ -46,3 +47,5 @@ twine upload dist/*
 ```
 
 Requires PyPI credentials configured (`~/.pypirc` or `TWINE_USERNAME` / `TWINE_PASSWORD`).
+
+PyPI `description` and `readme` come from [pyproject.toml](../pyproject.toml) — update them in the same release PR as [README.md](../README.md).

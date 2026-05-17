@@ -1,4 +1,4 @@
-"""Tests for Accept header negotiation edge cases."""
+"""Tests for Accept header negotiation."""
 
 from __future__ import annotations
 
@@ -9,9 +9,12 @@ from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
 from ontosql.fastapi.negotiate import _parse_accept, negotiate_onto_response
-from tests.models import Person
 
 pytest.importorskip("fastapi")
+
+TURTLE_SAMPLE = (
+    '@prefix schema: <https://schema.org/> .\n<http://example.org/person/1> schema:name "Ada" .\n'
+)
 
 
 def test_parse_accept_empty() -> None:
@@ -56,12 +59,12 @@ def test_negotiate_plain_dict() -> None:
     assert resp.media_type == "application/ld+json"
 
 
-def test_negotiate_ntriples() -> None:
+def test_negotiate_turtle_string() -> None:
     request = MagicMock()
-    request.headers.get.return_value = "application/n-triples"
-    person = Person(id=1, name="Ada")
-    resp = negotiate_onto_response(request, person)
-    assert resp.media_type == "application/n-triples"
+    request.headers.get.return_value = "text/turtle"
+    resp = negotiate_onto_response(request, TURTLE_SAMPLE)
+    assert resp.media_type == "text/turtle"
+    assert "schema:name" in resp.body.decode()
 
 
 @pytest.fixture
@@ -70,8 +73,14 @@ def client() -> TestClient:
 
     @app.get("/person/{person_id}")
     def get_person(person_id: int, request: Request) -> object:
-        person = Person(id=person_id, name="Ada Lovelace")
-        return negotiate_onto_response(request, person)
+        if "turtle" in (request.headers.get("accept") or "").lower():
+            return negotiate_onto_response(request, TURTLE_SAMPLE)
+        doc = {
+            "@context": {"schema": "https://schema.org/"},
+            "@id": f"http://example.org/person/{person_id}",
+            "schema:name": "Ada Lovelace",
+        }
+        return negotiate_onto_response(request, doc)
 
     return TestClient(app)
 
@@ -80,8 +89,7 @@ def test_client_turtle_with_charset(client: TestClient) -> None:
     r = client.get("/person/1", headers={"Accept": "text/turtle; charset=utf-8"})
     assert r.status_code == 200
     assert "text/turtle" in r.headers["content-type"]
-    assert "@context" not in r.text
-    assert "schema:name" in r.text or "schema.org" in r.text
+    assert "schema:name" in r.text
 
 
 def test_client_ld_json_lower_q_than_turtle(client: TestClient) -> None:

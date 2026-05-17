@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi.responses import Response
 
-from ontosql.rdf import media_type_for_format, normalize_format
+from ontosql.export._formats import media_type_for_format, normalize_format
 
 
 def _dumps_json(data: Any) -> str:
@@ -21,7 +21,7 @@ def _dumps_json(data: Any) -> str:
 
 
 def _serialize_data(data: Any, fmt: str) -> tuple[str, str]:
-    """Return (body, media_type) for OntoMixin instance or pre-built payload."""
+    """Return (body, media_type) for export-capable instance or pre-built payload."""
     rdflib_fmt = normalize_format(fmt)
 
     if rdflib_fmt == "json-ld":
@@ -38,7 +38,9 @@ def _serialize_data(data: Any, fmt: str) -> tuple[str, str]:
     if isinstance(data, str):
         return data, media_type_for_format(rdflib_fmt)
 
-    raise TypeError("Response data must be an OntoMixin instance, JSON-LD dict, or RDF string")
+    raise TypeError(
+        "Response data must support to_jsonld/to_rdf, be a JSON-LD dict, or an RDF string"
+    )
 
 
 class RDFResponse(Response):
