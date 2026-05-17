@@ -1,7 +1,7 @@
 [project]
-name = "semsql"
+name = "sqlmodel-semsql"
 version = "0.1.0"
-description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields"
+description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields (import semsql)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

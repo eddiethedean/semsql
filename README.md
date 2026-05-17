@@ -3,8 +3,14 @@
 **Semantic interoperability for SQLModel** — enrich operational models with ontology metadata and export JSON-LD and RDF without leaving Python.
 
 ```bash
-pip install semsql
-pip install semsql[fastapi]   # optional API helpers
+pip install sqlmodel-semsql
+pip install "sqlmodel-semsql[fastapi]"   # optional API helpers
+```
+
+The PyPI distribution is **`sqlmodel-semsql`** because the name `semsql` is used by another project ([semantic-sql](https://pypi.org/project/semsql/)). Import the library as `semsql`:
+
+```python
+import semsql
 ```
 
 ## Quick start

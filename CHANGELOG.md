@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 First public release.
 
+Published on PyPI as **`sqlmodel-semsql`** (`pip install sqlmodel-semsql`) because the project name `semsql` is already registered by [semantic-sql](https://pypi.org/project/semsql/). The Python import path remains `semsql`.
+
 ### Added
 
 - `onto_field()` — SQLModel field helper with ontology metadata in `json_schema_extra`

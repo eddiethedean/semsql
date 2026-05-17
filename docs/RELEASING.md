@@ -34,10 +34,14 @@ git push origin v0.1.0
 
 Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` section.
 
-## PyPI (optional)
+## PyPI
+
+The distribution name is **`sqlmodel-semsql`** (not `semsql` — that name is taken on PyPI by INCATools semantic-sql).
 
 ```bash
+python -m build
 pip install twine
+twine check dist/*
 twine upload dist/*
 ```
 
