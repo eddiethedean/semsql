@@ -69,7 +69,7 @@ pip install -e ".[dev]"
 ruff check src tests
 ruff format src tests
 ty check
-pytest --cov=semsql --cov-fail-under=90
+pytest --cov=semsql --cov-fail-under=100
 ```
 
 ## License

@@ -121,8 +121,10 @@ def _field_export_priority(entry: _FieldExport) -> int:
     if isinstance(related, type):
         nested_cls = related
 
-    if nested_cls is not None and _has_onto_mixin(type(entry.value)) and hasattr(
-        entry.value, "to_jsonld"
+    if (
+        nested_cls is not None
+        and _has_onto_mixin(type(entry.value))
+        and hasattr(entry.value, "to_jsonld")
     ):
         return 3
     if is_fk_scalar(entry.value, nested_cls):
@@ -143,9 +145,7 @@ def _serialize_value(
 ) -> Any:
     if is_list_annotation(annotation):
         items = list(value) if isinstance(value, tuple) else value
-        return [
-            _serialize_single(item, meta, annotation, registry, field_name) for item in items
-        ]
+        return [_serialize_single(item, meta, annotation, registry, field_name) for item in items]
     return _serialize_single(value, meta, annotation, registry, field_name)
 
 

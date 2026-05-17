@@ -22,21 +22,21 @@ def _apply_onto_attrs(
     if not issubclass(cls, SQLModel):
         raise TypeError(f"onto_model requires a SQLModel subclass, got {cls!r}")
     if type_ is not None:
-        setattr(cls, "__onto_type__", type_)
+        cls.__onto_type__ = type_
     if iri_template is not None:
-        setattr(cls, "__onto_iri_template__", iri_template)
-    setattr(cls, "__onto_base_iri__", base_iri.rstrip("/"))
+        cls.__onto_iri_template__ = iri_template
+    cls.__onto_base_iri__ = base_iri.rstrip("/")
     if registry is not None:
-        setattr(cls, "__onto_registry__", registry)
+        cls.__onto_registry__ = registry
     return cls
 
 
 @overload
-def onto_model(cls: T, /) -> T: ...
+def onto_model(cls: T, /) -> T: ...  # pragma: no cover
 
 
 @overload
-def onto_model(
+def onto_model(  # pragma: no cover
     cls: None = None,
     /,
     *,

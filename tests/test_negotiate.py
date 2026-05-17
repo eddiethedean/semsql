@@ -34,8 +34,7 @@ def test_parse_accept_q_zero_rejected() -> None:
 
 def test_parse_accept_q_with_charset() -> None:
     assert (
-        _parse_accept("application/ld+json;q=0.9; charset=utf-8, text/turtle;q=1")
-        == "text/turtle"
+        _parse_accept("application/ld+json;q=0.9; charset=utf-8, text/turtle;q=1") == "text/turtle"
     )
 
 
