@@ -6,7 +6,7 @@ Checklist for publishing a new version.
 
 1. Ensure `version` in `pyproject.toml` matches the release tag.
 2. Update `CHANGELOG.md` (move items from `[Unreleased]` to a new version section).
-3. For **major** releases (e.g. 0.2.0): confirm README, [SPECS.md](SPECS.md), [ARCHITECTURE.md](ARCHITECTURE.md), and CHANGELOG breaking sections are aligned.
+3. Confirm README, [SPECS.md](SPECS.md), [ARCHITECTURE.md](ARCHITECTURE.md), and CHANGELOG are aligned with the release scope.
 4. Run the full CI suite locally:
 
    ```bash
@@ -33,7 +33,7 @@ git tag -a v0.2.0 -m "Release 0.2.0"
 git push origin v0.2.0
 ```
 
-Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` section. For 0.2.0, call out breaking removal of the 0.1 API and link to [DEPRECATED-0.1.md](DEPRECATED-0.1.md).
+Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` section.
 
 ## PyPI
 

@@ -1,6 +1,6 @@
 # OntoSQL Technical Specification
 
-> **Target API (0.2.0).** This document describes the 0.2 contract. [0.1.0 is deprecated](DEPRECATED-0.1.md). Labels like *0.2.0-alpha* mark what ships in each milestone.
+API contract for **ontosql 0.2.0**. Sections marked *planned* are on the [roadmap](ROADMAP.md).
 
 ## Overview
 
@@ -19,8 +19,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for layers, glossary, and design rational
 
 | Phase | Scope |
 |-------|--------|
-| **0.2.0-alpha** | Mapper registry, `get` / `find`, basic semantic filters, remove 0.1 public API |
-| **0.2.x / 0.3** | `save` / `delete`, nested cascade policies, partial updates |
+| **0.2.0** | Mapper registry, `get` / `find`, semantic filters, `PrefixRegistry` |
+| **0.2.x / 0.3** | `save` / `delete`, nested cascade policies, partial updates, export |
 | **0.3** | `OntoRouter`, OpenAPI enrichment, bulk `find` |
 | **0.4+** | SHACL from maps, RDF import, graph sync extras |
 
@@ -111,7 +111,7 @@ class PersonMap(OntoMapper[Person]):
 | `Map.nested(...)` | Join + nested semantic type via another mapper |
 | `Map.computed(...)` | Read-only semantic field from SQL expression *(planned)* |
 
-### Cascade policies (write path — 0.2.x / 0.3)
+### Cascade policies (write path — *planned* 0.2.x / 0.3)
 
 Nested `save` behavior is **explicit** on `Map.nested`:
 
@@ -126,7 +126,7 @@ Default for new maps: `link` (fail closed on ambiguous graphs).
 
 ### Registry
 
-- Register mappers with `OntoSession(maps=[...])` or a global registry helper *(API TBD)*.
+- Register mappers with `OntoSession(maps=[...])` or `AsyncOntoSession(maps=[...])`.
 - One physical table may have multiple mappers.
 - One mapper per semantic entity type.
 
@@ -134,41 +134,46 @@ Default for new maps: `link` (fail closed on ambiguous graphs).
 
 ## Session
 
-### `OntoSession`
+### `OntoSession` / `AsyncOntoSession`
 
 Unit of work bound to a SQLAlchemy/SQLModel engine.
 
 ```python
-async with OntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
-    ...
+with OntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
+    person = session.get(Person, id=1)
 ```
 
-| Method | Phase | Description |
-|--------|-------|-------------|
-| `get(entity, *, id=..., iri=...)` | 0.2.0-alpha | Load one instance by primary key or IRI |
-| `find(entity, *, where=..., order_by=..., limit=..., offset=...)` | 0.2.0-alpha | Query with semantic field expressions |
-| `save(instance)` | 0.2.x / 0.3 | Insert or update; returns hydrated instance |
-| `delete(instance)` | 0.2.x / 0.3 | Delete per map delete plan |
-| `execute_sql(...)` | 0.2.0-alpha | Escape hatch for raw SQL |
+```python
+async with AsyncOntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
+    person = await session.get(Person, id=1)
+```
 
-- Transactions: one transaction per `async with` block; explicit rollback on exception.
-- Identity: optional identity map so repeated `get` in one session returns the same object *(planned)*.
+| Method | Status | Description |
+|--------|--------|-------------|
+| `get(entity, *, id=..., iri=...)` | 0.2.0 | Load one instance by primary key or IRI |
+| `find(entity, *, where=..., order_by=..., limit=..., offset=...)` | 0.2.0 | Query with semantic field expressions |
+| `save(instance)` | planned | Insert or update; returns hydrated instance |
+| `delete(instance)` | planned | Delete per map delete plan |
+| `execute_sql(...)` | 0.2.0 | Escape hatch for raw SQL |
+
+- Transactions: one transaction per context manager; rollback on exception.
+- Identity map for repeated `get` in one session *(planned)*.
 
 ### Query expressions
 
 Filters reference **semantic** attributes; the session compiles joins from the mapper.
 
 ```python
-await session.find(Person, where=Person.name.startswith("A"), limit=20)
+session.find(Person, where=Person.name.startswith("A"), limit=20)
 ```
 
-Supported operators (target): comparisons, `startswith`, `in_`, `is_null`, boolean `&` / `|`. Unsupported expressions raise at compile time.
+Supported operators (0.2.0): comparisons, `startswith`, `in_`, `is_null`, boolean `&` / `|`. Unsupported expressions raise at compile time.
 
 ---
 
 ## `PrefixRegistry`
 
-Retained from 0.1 (reimplemented against semantic/map metadata):
+CURIE and JSON-LD context utilities backed by semantic/map metadata:
 
 - CURIE `expand` / `compact`
 - JSON-LD `@context` via `context_dict()`
@@ -178,9 +183,9 @@ Used by session (IRI resolution), export, and FastAPI responses.
 
 ---
 
-## Export
+## Export (*planned* 0.2.x)
 
-Export operates on **semantic instances** using mapper + `onto_property` metadata.
+Export will operate on **semantic instances** using mapper + `onto_property` metadata.
 
 ```python
 person.to_jsonld(registry=None) -> dict
@@ -219,25 +224,22 @@ return negotiate_onto_response(request, semantic_instance)
 
 ---
 
-## Target package layout
+## Package layout
 
 ```text
 src/ontosql/
   __init__.py
   semantic/       # OntoModel, onto_property
-  physical/       # helpers for SQLModel registration (optional)
   mapping/        # OntoMapper, Map, registry
   compile/        # SQLAlchemy expression builders
-  session/        # OntoSession, load strategies
+  session/        # OntoSession, AsyncOntoSession
   query/          # semantic expressions
-  export/         # jsonld, rdf (from semantic + map)
+  export/         # format helpers for FastAPI
   registry.py     # PrefixRegistry
   fastapi/
     negotiate.py
     responses.py
 ```
-
-Current `main` may still reflect 0.1 layout until the rewrite merges.
 
 ---
 
@@ -266,4 +268,3 @@ Do **not**:
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [ROADMAP.md](ROADMAP.md)
 - [DEPS.md](DEPS.md)
-- [DEPRECATED-0.1.md](DEPRECATED-0.1.md)

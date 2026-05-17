@@ -1,7 +1,5 @@
 # OntoSQL Project Plan
 
-> **Documentation describes 0.2.0 (in development).** [0.1.0 is deprecated](DEPRECATED-0.1.md).
-
 ## Vision
 
 Build **ontosql** — a Python package that lets teams use **semantic, ontology-shaped models** for application logic while persisting to **existing SQL schemas** through explicit maps. Developers keep SQLModel for tables, Pydantic for concepts, and gain JSON-LD, RDF, and FastAPI interoperability from the same definitions.
@@ -14,7 +12,7 @@ pip install ontosql
 
 **Pythonic semantic CRUD over SQL via explicit maps.**
 
-Traditional ontology tooling assumes graph-native storage or 1:1 class-to-table mappings. Real platforms have legacy schemas, bridge tables, and multiple views of the same data. OntoSQL compiles semantic operations to SQL instead of pretending one SQLModel class is one RDF resource.
+Real platforms have legacy schemas, bridge tables, and multiple views of the same data. OntoSQL compiles semantic operations to SQL instead of coupling ontology shape to table layout.
 
 ## Primary goals
 
@@ -36,16 +34,15 @@ Traditional ontology tooling assumes graph-native storage or 1:1 class-to-table 
 
 ## MVP scope (0.2.0)
 
-Version 0.2.0 focuses on:
+Version 0.2.0 delivers:
 
 - `OntoModel` and `onto_property` (semantic layer)
 - `OntoMapper`, `Map`, `Map.nested` (mapping layer)
-- `OntoSession` read path: `get`, `find`, semantic filters
+- `OntoSession` and `AsyncOntoSession` read path: `get`, `find`, semantic filters
 - `PrefixRegistry` (IRI and JSON-LD context)
-- Removal of 0.1 export-on-table API
 - Architecture and specification documentation
 
-Write path (`save`, `delete`, cascades) follows in 0.2.x / 0.3 — see [ROADMAP.md](ROADMAP.md).
+Write path (`save`, `delete`, cascades) and export follow in 0.2.x / 0.3 — see [ROADMAP.md](ROADMAP.md).
 
 ## Non-goals
 
@@ -73,7 +70,7 @@ Write path (`save`, `delete`, cascades) follows in 0.2.x / 0.3 — see [ROADMAP.
 
 | Version | Focus |
 |---------|--------|
-| **0.2.0** | Mapper + session read; deprecate 0.1 |
+| **0.2.0** | Mapper + session read (current) |
 | **0.2.x / 0.3** | Write path, export, FastAPI router |
 | **0.4** | SHACL, RDF import, graph sync |
 | **1.0** | Stable API, docs site, production examples |
@@ -94,4 +91,3 @@ OntoSQL becomes the default **operational semantic layer** for Python + SQL:
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [SPECS.md](SPECS.md)
 - [DEPS.md](DEPS.md)
-- [DEPRECATED-0.1.md](DEPRECATED-0.1.md)

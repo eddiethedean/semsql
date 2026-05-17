@@ -1,7 +1,5 @@
 # OntoSQL Architecture
 
-> **Documentation describes 0.2.0 (in development).** [0.1.0 is deprecated](DEPRECATED-0.1.md) and unsupported.
-
 ## Problem
 
 Real databases rarely match ontology shapes one-to-one:
@@ -11,7 +9,7 @@ Real databases rarely match ontology shapes one-to-one:
 - Legacy columns exist that should never surface semantically.
 - Ontology properties may be computed, joined, or read-only — not simple column mappings.
 
-OntoSQL 0.2 treats **semantic models** as what application code uses, and **explicit maps** as how those models connect to SQL. Export and APIs are derived from the same definitions — not from assuming `table=True` classes are RDF entities.
+OntoSQL treats **semantic models** as what application code uses, and **explicit maps** as how those models connect to SQL. Export and APIs are derived from the same definitions.
 
 ## Glossary
 
@@ -65,7 +63,7 @@ flowchart TB
 
 - **SQLModel** fits schemas that already exist in Postgres — migrations stay familiar.
 - **Pydantic** fits composed entities, nested graphs, and read vs write shapes without `table=True` awkwardness.
-- Forcing a single class to be both row and entity caused the 0.1 design failure; 0.2 splits them on purpose.
+- Keeping row models and semantic models separate avoids conflating database layout with application concepts.
 
 ## Mapping is explicit
 
@@ -79,7 +77,7 @@ See [SPECS.md](SPECS.md) for the mapper DSL and cascade policies.
 
 ## Read and write paths
 
-**Read (`get`, `find`):**
+**Read (`get`, `find`) — shipped in 0.2.0:**
 
 1. Resolve `OntoMapper` for the semantic type.
 2. Build a `SELECT` with required joins from field bindings.
@@ -109,15 +107,9 @@ sequenceDiagram
 
 ## Interop
 
-JSON-LD and RDF export walk **semantic instances + mapper metadata** (`type_iri`, `onto_property`, IRI templates). The same `PrefixRegistry` resolves CURIEs for queries and serialization.
+JSON-LD and RDF export will walk **semantic instances + mapper metadata** (`type_iri`, `onto_property`, IRI templates). The same `PrefixRegistry` resolves CURIEs for queries and serialization.
 
-Future milestones (see [ROADMAP.md](ROADMAP.md)): SHACL from maps, RDF import, graph sync — all mapper-driven, not column introspection.
-
-## What changed from 0.1
-
-0.1 attached ontology metadata to SQLModel fields and exported `instance.__dict__` as JSON-LD. That assumed one model ≈ one table.
-
-0.2 removes that API entirely. There is no migration path — see [DEPRECATED-0.1.md](DEPRECATED-0.1.md).
+See [ROADMAP.md](ROADMAP.md) for SHACL, RDF import, and graph sync milestones.
 
 ## Non-goals
 
@@ -128,6 +120,6 @@ Future milestones (see [ROADMAP.md](ROADMAP.md)): SHACL from maps, RDF import, g
 
 ## Further reading
 
-- [SPECS.md](SPECS.md) — target API contract
+- [SPECS.md](SPECS.md) — API contract
 - [ROADMAP.md](ROADMAP.md) — release milestones
 - [DEPS.md](DEPS.md) — dependency choices

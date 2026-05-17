@@ -2,8 +2,6 @@
 
 **Semantic data access for SQL** — map ontology-shaped models onto real database schemas and write CRUD in Python, not RDF.
 
-> **Documentation describes 0.2.0 (in development).** [0.1.0 is deprecated](https://github.com/eddiethedean/ontosql/blob/main/docs/DEPRECATED-0.1.md) and unsupported. Implementation is in progress on `main`; the tree may still contain 0.1 code until the rewrite lands.
-
 Real databases are not one table per ontology class. OntoSQL separates **physical** SQLModel tables from **semantic** Pydantic entities and connects them with an explicit **mapper**. Application code uses semantic types; OntoSQL compiles SQL on the backend.
 
 ```bash
@@ -80,51 +78,47 @@ class PersonMap(OntoMapper[Person]):
     )
 ```
 
-### 4. Session (CRUD)
+### 4. Session (read path)
 
 ```python
 from ontosql import OntoSession
 
-# Target API (0.2.0) — read path first; write path in 0.2.x / 0.3
-async with OntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
-    ada = await session.get(Person, id=1)
-    team = await session.find(Person, where=Person.name.startswith("A"), limit=20)
-    # await session.save(ada)  # planned: nested save policies
+with OntoSession(engine, maps=[PersonMap, OrganizationMap]) as session:
+    ada = session.get(Person, id=1)
+    team = session.find(Person, where=Person.name.startswith("A"), limit=20)
 ```
 
-### 5. Export (same mapping metadata)
+Async sessions use `AsyncOntoSession` with the same API (`async with`, `await session.get`, `await session.find`).
 
-```python
-# Target API (0.2.0) — derived from semantic instance + map, not table rows
-doc = ada.to_jsonld()
-ttl = ada.to_rdf(format="turtle")
-```
+### 5. Export (planned)
 
-## Features (0.2.0)
+JSON-LD and RDF export from semantic instances and mapper metadata are planned for 0.2.x. See [ROADMAP.md](https://github.com/eddiethedean/ontosql/blob/main/docs/ROADMAP.md).
+
+## Features
 
 - **OntoModel** + **onto_property** — semantic entities with ontology IRIs
 - **OntoMapper** / **Map** — declarative bindings to columns, joins, and nested entities
-- **OntoSession** — `get`, `find`, `save`, `delete` compiled to SQL
-- **Semantic queries** — filter and order on mapped fields
+- **OntoSession** / **AsyncOntoSession** — `get`, `find`, and `execute_sql` compiled to SQL
+- **Semantic queries** — filter on mapped fields (`Person.name.startswith("A")`, etc.)
 - **PrefixRegistry** — CURIE expansion and JSON-LD `@context`
-- **Export** — JSON-LD and RDF from semantic instances via mapper metadata
-- **FastAPI** (`ontosql[fastapi]`) — content negotiation for semantic responses
+- **FastAPI** (`ontosql[fastapi]`) — content negotiation for JSON-LD and RDF payloads
 
 ## FastAPI
 
 ```python
 from fastapi import FastAPI, Depends, Request
+from ontosql import OntoSession
 from ontosql.fastapi import negotiate_onto_response
 
 app = FastAPI()
 
 @app.get("/person/{person_id}")
-async def get_person(person_id: int, request: Request, session: OntoSession = Depends(...)):
-    person = await session.get(Person, id=person_id)
+def get_person(person_id: int, request: Request, session: OntoSession = Depends(...)):
+    person = session.get(Person, id=person_id)
     return negotiate_onto_response(request, person)
 ```
 
-> **Note:** [examples/fastapi_demo.py](https://github.com/eddiethedean/ontosql/blob/main/examples/fastapi_demo.py) still demonstrates the removed 0.1 API. It will be replaced when 0.2 ships.
+See [examples/person_org_demo.py](https://github.com/eddiethedean/ontosql/blob/main/examples/person_org_demo.py) for a minimal read demo.
 
 ## Documentation
 
@@ -133,7 +127,6 @@ async def get_person(person_id: int, request: Request, session: OntoSession = De
 - [Roadmap](https://github.com/eddiethedean/ontosql/blob/main/docs/ROADMAP.md)
 - [Project plan](https://github.com/eddiethedean/ontosql/blob/main/docs/PLAN.md)
 - [Dependency assessment](https://github.com/eddiethedean/ontosql/blob/main/docs/DEPS.md)
-- [Deprecated 0.1.0](https://github.com/eddiethedean/ontosql/blob/main/docs/DEPRECATED-0.1.md)
 - [Changelog](https://github.com/eddiethedean/ontosql/blob/main/CHANGELOG.md)
 
 ## Development
@@ -147,8 +140,6 @@ ruff format src tests
 ty check
 pytest --cov=ontosql --cov-fail-under=100
 ```
-
-CI and coverage currently apply to the existing package layout until the 0.2 implementation replaces it.
 
 ## License
 

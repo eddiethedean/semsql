@@ -1,7 +1,5 @@
 # OntoSQL Dependency Ecosystem Assessment
 
-> **Documentation describes 0.2.0 (in development).** Dependency layout may change when the rewrite lands on `main`.
-
 ## Overview
 
 This document evaluates Python dependencies for **ontosql** as a **semantic mapper and session layer** over SQL, with JSON-LD/RDF export as a derivative. The goal is a small core, optional extras, and Pythonic APIs — not a heavyweight semantic-web framework.
@@ -14,7 +12,7 @@ This document evaluates Python dependencies for **ontosql** as a **semantic mapp
 - Optional extras for FastAPI, SHACL, advanced JSON-LD, graph DBs, AI
 - No magical 1:1 table-to-ontology inference
 
-## Core dependencies (target 0.2)
+## Core dependencies
 
 ### Pydantic v2
 
@@ -111,19 +109,11 @@ Not committed until graph sync adapters are specified in [ROADMAP.md](ROADMAP.md
 
 ## Extras in pyproject.toml
 
-**Current on PyPI (0.1.0 tree until 0.2 ships):**
-
 ```toml
 [project.optional-dependencies]
 fastapi = ["fastapi>=0.100", "orjson>=3.9"]
-dev = ["pytest", "pytest-cov", "ty", "ruff", "httpx", "fastapi", "orjson", ...]
-```
-
-**Target 0.2+ (not all defined yet):**
-
-```toml
-fastapi = ["fastapi>=0.100", "orjson>=3.9"]
-# Planned:
+dev = ["pytest", "pytest-cov", "ty", "ruff", "httpx", "fastapi", "orjson", "aiosqlite", ...]
+# Planned extras:
 # jsonld = ["PyLD"]
 # shacl = ["pySHACL"]
 # graphdb = ["SPARQLWrapper", "neo4j"]

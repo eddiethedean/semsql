@@ -1,57 +1,29 @@
 # OntoSQL Roadmap
 
-> **Documentation describes 0.2.0 (in development).** [0.1.0 is deprecated](DEPRECATED-0.1.md).
-
 This document describes planned releases for **ontosql**. For the API contract, see [SPECS.md](SPECS.md). For dependency choices, see [DEPS.md](DEPS.md). For architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Vision
 
 OntoSQL is the **operational semantic layer** for Python apps on SQL: define relational schemas with SQLModel, define application concepts with Pydantic semantic models, connect them with explicit maps, and get CRUD plus JSON-LD/RDF/FastAPI from one source of truth.
 
-## Status on `main`
+## Current release: 0.2.0
 
 | Area | Status |
 |------|--------|
-| 0.1 export-on-table API | Removed in 0.2.0 |
-| 0.2 mapper + session read | Implemented (`get`, `find`, sync + async) |
-| 0.2 export / `save` / `delete` | Planned 0.2.x / 0.3 |
-| PyPI | `0.2.0` pending release |
+| `OntoModel`, `onto_property` | Shipped |
+| `OntoMapper`, `Map`, `Map.nested` | Shipped |
+| `OntoSession` / `AsyncOntoSession` `get` / `find` | Shipped |
+| Semantic query expressions | Shipped |
+| `PrefixRegistry` | Shipped |
+| `save` / `delete` | Planned 0.2.x / 0.3 |
+| Export (`to_jsonld`, `to_rdf`) | Planned 0.2.x |
+| `OntoRouter` | Planned 0.3 |
 
 ---
 
-## v0.2.0 — Mapper and read path
+## v0.2.x / 0.3 — Write path and API ergonomics
 
-**Theme:** Replace 0.1 with semantic data access; read before write.
-
-### Planned
-
-| Item | Notes |
-|------|--------|
-| `OntoModel`, `onto_property` | Semantic layer (Pydantic) |
-| `OntoMapper`, `Map`, `Map.nested` | Explicit SQL bindings |
-| `OntoSession.get` / `find` | Compiled SELECT + hydration |
-| Semantic query expressions | Basic filters on mapped fields |
-| `PrefixRegistry` | Retained; IRI + `@context` |
-| Remove 0.1 API | `OntoMixin`, `onto_field`, `onto_model`, export-from-row |
-| Documentation | ARCHITECTURE, SPECS, README for 0.2 |
-
-### Success criteria
-
-- Person / Organization example: multi-table schema, nested `worksFor`, `find` + `get` without hand-written JOINs
-- No public 0.1 symbols in `ontosql` package root
-- Tests cover mapper compile + load for representative joins
-
-### Not in 0.2.0
-
-- `save` / `delete` (see 0.2.x / 0.3)
-- `OntoRouter`
-- SHACL, RDF import
-
----
-
-## v0.2.x / v0.3 — Write path and API ergonomics
-
-**Theme:** Full CRUD and FastAPI integration.
+**Theme:** Full CRUD, export, and FastAPI integration.
 
 ### Planned
 
@@ -99,11 +71,11 @@ OntoSQL is the **operational semantic layer** for Python apps on SQL: define rel
 - **API stability** — semver policy for `ontosql` and `ontosql.fastapi`
 - **Schema packs** — curated prefix bundles (schema.org, Dublin Core, SKOS)
 - **Production examples** — auth, pagination, multi-map apps
-- **Documentation site** — MkDocs or equivalent; tutorials and migration from 0.1 history only
+- **Documentation site** — MkDocs or equivalent; tutorials and API reference
 
 ### Success criteria
 
-- Documented upgrade path from 0.2.x → 1.0 (no 0.1 migration)
+- Documented upgrade path from 0.2.x → 1.0
 - Compatibility matrix: Python, SQLModel, Pydantic, FastAPI
 
 ---
