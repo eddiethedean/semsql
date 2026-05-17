@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from sqlmodel import SQLModel
 
-from semsql._meta import get_onto_meta
-from semsql.fields import build_onto_extra, onto_field
+from ontosql._meta import get_onto_meta
+from ontosql.fields import build_onto_extra, onto_field
 
 
 class FullMeta(SQLModel, table=False):
@@ -29,7 +29,7 @@ def test_build_onto_extra_all_keys() -> None:
         language="en",
         graph="g",
     )
-    meta = extra["json_schema_extra"]["semsql"]
+    meta = extra["json_schema_extra"]["ontosql"]
     assert meta["graph"] == "g"
 
 

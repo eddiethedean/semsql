@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from semsql.mixin import OntoMixin
+from ontosql.mixin import OntoMixin
 
 
 def test_onto_context_requires_sqlmodel() -> None:

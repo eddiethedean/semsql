@@ -1,4 +1,4 @@
-"""Internal metadata introspection for SemSQL."""
+"""Internal metadata introspection for OntoSQL."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from uuid import UUID
 from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
 
-from semsql.registry import PrefixRegistry
+from ontosql.registry import PrefixRegistry
 
-ONTO_META_KEY = "semsql"
+ONTO_META_KEY = "ontosql"
 
 # Fields to skip when serializing SQLModel / SQLAlchemy instances.
 _SKIP_FIELDS = frozenset({"_sa_instance_state"})
@@ -116,7 +116,7 @@ def get_nested_model_class(annotation: Any) -> type[Any] | None:
 
 
 def _has_onto_mixin(cls: type[Any]) -> bool:
-    from semsql.mixin import OntoMixin
+    from ontosql.mixin import OntoMixin
 
     return isinstance(cls, type) and issubclass(cls, OntoMixin)
 

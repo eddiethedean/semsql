@@ -1,13 +1,13 @@
-# SemSQL Technical Specification
+# OntoSQL Technical Specification
 
 ## Overview
 
-**semsql** is a semantic interoperability framework built on SQLModel and Pydantic. It lets developers enrich SQLModel models with ontology-aware metadata and export or import data using semantic web standards — without leaving familiar Python model definitions.
+**ontosql** is a semantic interoperability framework built on SQLModel and Pydantic. It lets developers enrich SQLModel models with ontology-aware metadata and export or import data using semantic web standards — without leaving familiar Python model definitions.
 
 | | |
 |---|---|
-| PyPI name | `semsql` |
-| Import | `import semsql` |
+| PyPI name | `ontosql` |
+| Import | `import ontosql` |
 | Python | 3.10+ |
 
 ## Implementation status (0.1.0)
@@ -19,7 +19,7 @@
 3. `PrefixRegistry` — CURIE expansion, compaction, JSON-LD `@context`
 4. JSON-LD serializer — nested objects, FK references, typed literals (`datetime`, `UUID`, `Decimal`, `Enum`, tuples)
 5. RDF export via RDFLib (Turtle, JSON-LD, N-Triples, RDF/XML)
-6. FastAPI integration (`semsql.fastapi`) — response classes and `negotiate_onto_response` content negotiation
+6. FastAPI integration (`ontosql.fastapi`) — response classes and `negotiate_onto_response` content negotiation
 
 ### Planned (0.2+)
 
@@ -33,7 +33,7 @@
 
 ```python
 from sqlmodel import Field, SQLModel
-from semsql import OntoMixin, onto_field
+from ontosql import OntoMixin, onto_field
 
 
 class Person(SQLModel, OntoMixin, table=True):
@@ -93,7 +93,7 @@ SHACL `NodeShape` generation from SQLModel definitions is planned for 0.2+.
 
 ```python
 from fastapi import FastAPI, Request
-from semsql.fastapi import negotiate_onto_response
+from ontosql.fastapi import negotiate_onto_response
 
 app = FastAPI()
 
@@ -107,7 +107,7 @@ Implemented in 0.1.0:
 
 - Content negotiation (`application/ld+json`, `text/turtle`, `application/n-triples`, `application/rdf+xml`)
 - JSON-LD and RDF response classes (`JSONLDResponse`, `TurtleResponse`, etc.)
-- `orjson` used for JSON-LD bodies when installed (`semsql[fastapi]`)
+- `orjson` used for JSON-LD bodies when installed (`ontosql[fastapi]`)
 
 Planned:
 
@@ -121,7 +121,7 @@ Operational persistence stays relational via SQLModel and SQLAlchemy. Ontology e
 ## Package Layout (0.1.0)
 
 ```text
-src/semsql/
+src/ontosql/
   __init__.py          # OntoMixin, onto_field, PrefixRegistry
   _meta.py             # introspection and JSON-LD value coercion
   decorator.py         # onto_model
@@ -142,7 +142,7 @@ src/semsql/
 - Named graph support
 - Ontology synchronization
 - Graph database replication
-- LLM extraction pipelines (`semsql[ai]`)
+- LLM extraction pipelines (`ontosql[ai]`)
 - Entity resolution
 
 ## Design Principles

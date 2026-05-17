@@ -6,7 +6,7 @@ from typing import TypeVar, overload
 
 from sqlmodel import SQLModel
 
-from semsql.registry import PrefixRegistry
+from ontosql.registry import PrefixRegistry
 
 T = TypeVar("T", bound=type[SQLModel])
 

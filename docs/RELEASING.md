@@ -1,4 +1,4 @@
-# Releasing SemSQL
+# Releasing OntoSQL
 
 Checklist for publishing a new version.
 
@@ -13,7 +13,7 @@ Checklist for publishing a new version.
    ruff check src tests
    ruff format --check src tests
    ty check
-   pytest --cov=semsql --cov-fail-under=100
+   pytest --cov=ontosql --cov-fail-under=100
    ```
 
 4. Build and smoke-test the wheel:
@@ -21,8 +21,8 @@ Checklist for publishing a new version.
    ```bash
    pip install build
    python -m build
-   pip install dist/semsql-*.whl
-   python -c "import semsql; print(semsql.__version__)"
+   pip install dist/ontosql-*.whl
+   python -c "import ontosql; print(ontosql.__version__)"
    ```
 
 ## GitHub release
@@ -36,7 +36,7 @@ Create a GitHub release from the tag and paste the relevant `CHANGELOG.md` secti
 
 ## PyPI
 
-The distribution name is **`sqlmodel-semsql`** (not `semsql` — that name is taken on PyPI by INCATools semantic-sql).
+The PyPI distribution name is **`ontosql`**.
 
 ```bash
 python -m build

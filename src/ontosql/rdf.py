@@ -8,7 +8,7 @@ from typing import Any
 from rdflib import Graph
 from sqlmodel import SQLModel
 
-from semsql.jsonld import model_to_jsonld
+from ontosql.jsonld import model_to_jsonld
 
 # User-facing format names -> rdflib serialization format
 FORMAT_MAP: dict[str, str] = {
@@ -56,7 +56,7 @@ def model_to_graph(
     registry: Any = None,
 ) -> Graph:
     """Convert a model instance to an rdflib Graph."""
-    from semsql.registry import PrefixRegistry
+    from ontosql.registry import PrefixRegistry
 
     reg: PrefixRegistry | None = registry
     doc = model_to_jsonld(instance, registry=reg)

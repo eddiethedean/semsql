@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from semsql import OntoMixin, apply_onto_model, onto_field
+from ontosql import OntoMixin, apply_onto_model, onto_field
 
 
 def test_iri_template_fallback_on_missing_key() -> None:

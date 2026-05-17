@@ -1,4 +1,4 @@
-"""Content negotiation for SemSQL FastAPI routes."""
+"""Content negotiation for OntoSQL FastAPI routes."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import Request
 from fastapi.responses import JSONResponse, Response
 
-from semsql.fastapi.responses import (
+from ontosql.fastapi.responses import (
     JSONLDResponse,
     NTriplesResponse,
     RDFXMLResponse,

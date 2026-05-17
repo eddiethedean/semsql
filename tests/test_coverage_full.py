@@ -12,8 +12,8 @@ from pydantic import Field
 from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
 
-from semsql import OntoMixin, apply_onto_model, onto_field, onto_model
-from semsql._meta import (
+from ontosql import OntoMixin, apply_onto_model, onto_field, onto_model
+from ontosql._meta import (
     build_instance_iri,
     coerce_jsonld_scalar,
     get_onto_meta,
@@ -26,21 +26,21 @@ from semsql._meta import (
     reference_iri,
     resolve_curie,
 )
-from semsql.decorator import _apply_onto_attrs
-from semsql.fastapi import negotiate as negotiate_mod
-from semsql.fastapi.negotiate import (
+from ontosql.decorator import _apply_onto_attrs
+from ontosql.fastapi import negotiate as negotiate_mod
+from ontosql.fastapi.negotiate import (
     _matches_known_mime,
     _parse_accept_params,
     negotiate_onto_response,
 )
-from semsql.fastapi.responses import (
+from ontosql.fastapi.responses import (
     JSONLDResponse,
     TurtleResponse,
     _dumps_json,
     _serialize_data,
 )
-from semsql.jsonld import _serialize_single, model_to_jsonld
-from semsql.registry import PrefixRegistry
+from ontosql.jsonld import _serialize_single, model_to_jsonld
+from ontosql.registry import PrefixRegistry
 from tests.models import Organization, Person
 
 pytest.importorskip("fastapi")
@@ -56,9 +56,9 @@ def test_get_onto_meta_non_dict_extra() -> None:
     assert get_onto_meta(M.model_fields["x"]) == {}
 
 
-def test_get_onto_meta_invalid_semsql_value() -> None:
+def test_get_onto_meta_invalid_ontosql_value() -> None:
     class M(SQLModel, table=False):
-        x: str = Field(json_schema_extra={"semsql": "not-a-dict"})
+        x: str = Field(json_schema_extra={"ontosql": "not-a-dict"})
 
     assert get_onto_meta(M.model_fields["x"]) == {}
 
@@ -160,8 +160,8 @@ def test_is_list_annotation_type_error_branch() -> None:
     assert is_list_annotation("not-a-type-annotation") is False
 
     with (
-        patch("semsql._meta.get_origin", return_value=type),
-        patch("semsql._meta.issubclass", side_effect=TypeError("bad")),
+        patch("ontosql._meta.get_origin", return_value=type),
+        patch("ontosql._meta.issubclass", side_effect=TypeError("bad")),
     ):
         assert is_list_annotation(Sequence[str]) is False
 
@@ -302,11 +302,11 @@ def test_onto_field_datatype_only() -> None:
     assert "ontology" not in meta
 
 
-def test_onto_field_merges_existing_semsql_in_json_schema_extra() -> None:
+def test_onto_field_merges_existing_ontosql_in_json_schema_extra() -> None:
     class M(SQLModel, table=False):
         x: str = onto_field(
             ontology="schema:name",
-            json_schema_extra={"semsql": {"inverse": "ex:inverse"}},
+            json_schema_extra={"ontosql": {"inverse": "ex:inverse"}},
         )
 
     meta = get_onto_meta(M.model_fields["x"])
@@ -327,14 +327,14 @@ def test_onto_field_merges_schema_extra_json_schema_extra() -> None:
 
 
 def test_build_onto_extra_datatype_only() -> None:
-    from semsql.fields import build_onto_extra
+    from ontosql.fields import build_onto_extra
 
     extra = build_onto_extra(datatype="xsd:string")
-    assert extra["json_schema_extra"]["semsql"] == {"datatype": "xsd:string"}
+    assert extra["json_schema_extra"]["ontosql"] == {"datatype": "xsd:string"}
 
 
 def test_build_onto_extra_all_optional_keys() -> None:
-    from semsql.fields import build_onto_extra
+    from ontosql.fields import build_onto_extra
 
     extra = build_onto_extra(
         ontology="o",
@@ -344,7 +344,7 @@ def test_build_onto_extra_all_optional_keys() -> None:
         language="en",
         graph="http://example.org/g",
     )
-    assert extra["json_schema_extra"]["semsql"]["graph"] == "http://example.org/g"
+    assert extra["json_schema_extra"]["ontosql"]["graph"] == "http://example.org/g"
 
 
 def test_onto_field_all_optional_metadata_keys() -> None:
@@ -367,7 +367,7 @@ def test_onto_field_all_optional_metadata_keys() -> None:
 
 def test_model_to_jsonld_skips_none_serialized() -> None:
     person = Person(id=1, name="Ada")
-    with patch("semsql.jsonld._serialize_value", return_value=None):
+    with patch("ontosql.jsonld._serialize_value", return_value=None):
         doc = model_to_jsonld(person)
     assert "schema:name" not in doc
 
@@ -393,8 +393,8 @@ def test_serialize_single_onto_class_int_fk() -> None:
 def test_serialize_single_onto_class_int_without_nested_cls() -> None:
     reg = PrefixRegistry()
     with (
-        patch("semsql.jsonld.get_nested_model_class", return_value=None),
-        patch("semsql.jsonld.is_onto_model_class", return_value=True),
+        patch("ontosql.jsonld.get_nested_model_class", return_value=None),
+        patch("ontosql.jsonld.is_onto_model_class", return_value=True),
     ):
         result = _serialize_single(3, {"ontology": "schema:id"}, Organization, reg, "org_id")
     assert result == 3
@@ -404,10 +404,10 @@ def test_serialize_single_onto_class_int_fk_via_is_onto_model_class() -> None:
     reg = PrefixRegistry()
     with (
         patch(
-            "semsql.jsonld.get_nested_model_class",
+            "ontosql.jsonld.get_nested_model_class",
             side_effect=[None, Organization],
         ),
-        patch("semsql.jsonld.is_onto_model_class", return_value=True),
+        patch("ontosql.jsonld.is_onto_model_class", return_value=True),
     ):
         result = _serialize_single(3, {}, Organization, reg, "org_id")
     assert result == {"@id": "http://example.org/org/3"}
@@ -495,7 +495,7 @@ def test_jsonld_response_uses_orjson_when_available() -> None:
 
 
 def test_field_export_priority_fk_branch() -> None:
-    from semsql.jsonld import _field_export_priority, _FieldExport
+    from ontosql.jsonld import _field_export_priority, _FieldExport
 
     entry = _FieldExport(
         field_name="organization_id",

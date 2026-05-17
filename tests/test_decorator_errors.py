@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from semsql import onto_model
+from ontosql import onto_model
 
 
 def test_onto_model_requires_sqlmodel() -> None:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from semsql.registry import DEFAULT_PREFIXES, PrefixRegistry
+from ontosql.registry import DEFAULT_PREFIXES, PrefixRegistry
 
 
 def test_default_prefixes() -> None:

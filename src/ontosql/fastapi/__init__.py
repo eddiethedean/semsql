@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 try:
-    from semsql.fastapi.negotiate import negotiate_onto_response
-    from semsql.fastapi.responses import (
+    from ontosql.fastapi.negotiate import negotiate_onto_response
+    from ontosql.fastapi.responses import (
         JSONLDResponse,
         NTriplesResponse,
         RDFResponse,
@@ -14,7 +14,7 @@ try:
 except ImportError as exc:
     if "fastapi" in str(exc).lower() or "starlette" in str(exc).lower():
         raise ImportError(
-            "FastAPI support requires the fastapi extra: pip install semsql[fastapi]"
+            "FastAPI support requires the fastapi extra: pip install ontosql[fastapi]"
         ) from exc
     raise
 

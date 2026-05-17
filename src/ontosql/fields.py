@@ -6,7 +6,7 @@ from typing import Any
 
 from sqlmodel import Field
 
-from semsql._meta import ONTO_META_KEY
+from ontosql._meta import ONTO_META_KEY
 
 
 def onto_field(
@@ -24,7 +24,7 @@ def onto_field(
     **kwargs: Any,
 ) -> Any:
     """
-    Create a SQLModel Field with ontology metadata stored under ``semsql`` in
+    Create a SQLModel Field with ontology metadata stored under ``ontosql`` in
     ``json_schema_extra`` (via SQLModel's ``schema_extra``).
     """
     onto_meta: dict[str, Any] = {}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from semsql import OntoMixin, onto_field, onto_model
+from ontosql import OntoMixin, onto_field, onto_model
 
 
 @onto_model(type_="schema:Person", iri_template="http://example.org/person/{id}")

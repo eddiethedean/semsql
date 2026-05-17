@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from semsql.registry import PrefixRegistry
+from ontosql.registry import PrefixRegistry
 
 
 def test_registry_eq_and_copy() -> None:

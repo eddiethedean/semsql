@@ -6,7 +6,7 @@ import warnings
 
 from sqlmodel import Field, SQLModel
 
-from semsql import OntoMixin, onto_field, onto_model
+from ontosql import OntoMixin, onto_field, onto_model
 from tests.models import Employee, EmployeeFk, Organization, Person
 
 

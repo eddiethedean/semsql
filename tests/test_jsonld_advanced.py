@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from sqlmodel import Field, SQLModel
 
-from semsql import OntoMixin, onto_field, onto_model
-from semsql.registry import PrefixRegistry
+from ontosql import OntoMixin, onto_field, onto_model
+from ontosql.registry import PrefixRegistry
 from tests.models import EmployeeFk, Person
 
 

@@ -1,4 +1,4 @@
-"""JSON-LD serialization for SemSQL instances."""
+"""JSON-LD serialization for OntoSQL instances."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 from pydantic.fields import FieldInfo
 from sqlmodel import SQLModel
 
-from semsql._meta import (
+from ontosql._meta import (
     _has_onto_mixin,
     build_instance_iri,
     coerce_jsonld_scalar,
@@ -24,7 +24,7 @@ from semsql._meta import (
     property_key,
     reference_iri,
 )
-from semsql.registry import PrefixRegistry
+from ontosql.registry import PrefixRegistry
 
 
 def default_registry() -> PrefixRegistry:

@@ -1,12 +1,12 @@
-# SemSQL Dependency Ecosystem Assessment
+# OntoSQL Dependency Ecosystem Assessment
 
 ## Overview
 
-This document evaluates recommended Python package dependencies and ecosystem integrations for **semsql**. The goal is to maintain a lightweight, Pythonic, operationally focused semantic interoperability framework centered on SQLModel and FastAPI.
+This document evaluates recommended Python package dependencies and ecosystem integrations for **ontosql**. The goal is to maintain a lightweight, Pythonic, operationally focused semantic interoperability framework centered on SQLModel and FastAPI.
 
 ## Dependency Philosophy
 
-The `semsql` package should maintain:
+The `ontosql` package should maintain:
 
 - A small and stable core
 - Optional extras for advanced integrations
@@ -89,7 +89,7 @@ PyLD significantly improves JSON-LD capabilities beyond basic RDFLib support.
 ### Instructor
 
 - Structured LLM extraction into Pydantic models
-- Strong alignment with SemSQL architecture
+- Strong alignment with OntoSQL architecture
 
 ### PydanticAI
 
@@ -147,14 +147,14 @@ fastapi = ["fastapi>=0.100", "orjson>=3.9"]
 dev = ["pytest", "pytest-cov", "ty", "ruff", "httpx", "fastapi", "orjson", ...]
 ```
 
-- **`fastapi`** — installs FastAPI and orjson; `semsql.fastapi` uses orjson for JSON-LD responses when available
+- **`fastapi`** — installs FastAPI and orjson; `ontosql.fastapi` uses orjson for JSON-LD responses when available
 - **`dev`** — test, lint, and type-check tooling
 
 Install examples:
 
 ```bash
-pip install semsql
-pip install semsql[fastapi]
+pip install ontosql
+pip install ontosql[fastapi]
 pip install -e ".[dev]"
 ```
 
@@ -193,4 +193,4 @@ polars = ["polars"]
 - Neo4j
 - DeepOnto
 
-SemSQL should expose Pythonic model-centric APIs rather than RDF-native APIs. RDFLib should remain an internal implementation detail wherever possible.
+OntoSQL should expose Pythonic model-centric APIs rather than RDF-native APIs. RDFLib should remain an internal implementation detail wherever possible.

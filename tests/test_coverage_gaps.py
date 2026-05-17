@@ -8,10 +8,10 @@ from fastapi.responses import JSONResponse
 from pydantic import Field
 from sqlmodel import SQLModel
 
-from semsql import __version__, onto_field
-from semsql._meta import get_onto_meta
-from semsql.fastapi.negotiate import negotiate_onto_response
-from semsql.fastapi.responses import RDFXMLResponse
+from ontosql import __version__, onto_field
+from ontosql._meta import get_onto_meta
+from ontosql.fastapi.negotiate import negotiate_onto_response
+from ontosql.fastapi.responses import RDFXMLResponse
 from tests.models import Person
 
 

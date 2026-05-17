@@ -1,11 +1,11 @@
 [project]
-name = "sqlmodel-semsql"
+name = "ontosql"
 version = "0.1.0"
-description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields (import semsql)"
+description = "Semantic interoperability for SQLModel — JSON-LD and RDF export with ontology-aware fields (import ontosql)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
-authors = [{ name = "SemSQL Contributors" }]
+authors = [{ name = "OntoSQL Contributors" }]
 keywords = ["sqlmodel", "json-ld", "rdf", "ontology", "semantic-web", "fastapi"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -40,18 +40,18 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/eddiethedean/semsql"
-Documentation = "https://github.com/eddiethedean/semsql#readme"
-Repository = "https://github.com/eddiethedean/semsql"
-Issues = "https://github.com/eddiethedean/semsql/issues"
-Changelog = "https://github.com/eddiethedean/semsql/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/eddiethedean/ontosql"
+Documentation = "https://github.com/eddiethedean/ontosql#readme"
+Repository = "https://github.com/eddiethedean/ontosql"
+Issues = "https://github.com/eddiethedean/ontosql/issues"
+Changelog = "https://github.com/eddiethedean/ontosql/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/semsql"]
+packages = ["src/ontosql"]
 
 [tool.hatch.build.targets.sdist]
 include = ["/src", "/tests", "/examples", "/docs"]
@@ -71,7 +71,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 python-version = "3.10"
 
 [tool.ty.src]
-include = ["src/semsql"]
+include = ["src/ontosql"]
 
 [tool.ty.analysis]
 replace-imports-with-any = ["rdflib.**", "sqlmodel.**"]
@@ -84,13 +84,13 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
-source = ["semsql"]
+source = ["ontosql"]
 branch = true
 
 [tool.coverage.report]
 omit = [
-    "src/semsql/__init__.py",
-    "src/semsql/fastapi/__init__.py",
+    "src/ontosql/__init__.py",
+    "src/ontosql/fastapi/__init__.py",
 ]
 exclude_lines = [
     "pragma: no cover",

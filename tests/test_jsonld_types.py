@@ -11,8 +11,8 @@ from uuid import UUID
 import pytest
 from sqlmodel import Field, SQLModel
 
-from semsql import OntoMixin, onto_field, onto_model
-from semsql.fastapi.responses import JSONLDResponse
+from ontosql import OntoMixin, onto_field, onto_model
+from ontosql.fastapi.responses import JSONLDResponse
 
 pytest.importorskip("fastapi")
 

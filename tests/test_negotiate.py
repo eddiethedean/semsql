@@ -8,7 +8,7 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from semsql.fastapi.negotiate import _parse_accept, negotiate_onto_response
+from ontosql.fastapi.negotiate import _parse_accept, negotiate_onto_response
 from tests.models import Person
 
 pytest.importorskip("fastapi")

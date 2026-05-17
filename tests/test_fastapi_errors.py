@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from semsql.fastapi.responses import RDFResponse
+from ontosql.fastapi.responses import RDFResponse
 
 
 def test_invalid_response_data() -> None:

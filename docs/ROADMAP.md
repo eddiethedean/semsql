@@ -1,10 +1,10 @@
-# SemSQL Roadmap
+# OntoSQL Roadmap
 
-This document describes planned releases and long-term direction for **semsql**. For implementation details, see [SPECS.md](SPECS.md). For dependency choices, see [DEPS.md](DEPS.md).
+This document describes planned releases and long-term direction for **ontosql**. For implementation details, see [SPECS.md](SPECS.md). For dependency choices, see [DEPS.md](DEPS.md).
 
 ## Vision
 
-SemSQL is the operational semantic layer for Python apps built on SQLModel and FastAPI. Developers define relational models once, attach ontology metadata in place, and gain JSON-LD and RDF interoperability without adopting a separate RDF-native stack.
+OntoSQL is the operational semantic layer for Python apps built on SQLModel and FastAPI. Developers define relational models once, attach ontology metadata in place, and gain JSON-LD and RDF interoperability without adopting a separate RDF-native stack.
 
 ## Current release: 0.1.0
 
@@ -17,7 +17,7 @@ SemSQL is the operational semantic layer for Python apps built on SQLModel and F
 | Context | `PrefixRegistry`, class-level `onto_context()` |
 | Literals | JSON-safe coercion for `datetime`, `date`, `UUID`, `Decimal`, `Enum`, `tuple` |
 | Relationships | Nested object export; FK `@id` references; duplicate-property resolution |
-| FastAPI | `semsql[fastapi]` — response classes, `negotiate_onto_response()`, RFC-aware `Accept` parsing |
+| FastAPI | `ontosql[fastapi]` — response classes, `negotiate_onto_response()`, RFC-aware `Accept` parsing |
 | Quality | 100% test coverage on measured source modules |
 
 ### Known limitations (0.1.0)
@@ -39,7 +39,7 @@ SemSQL is the operational semantic layer for Python apps built on SQLModel and F
 - **SHACL generation** — derive `NodeShape`s from SQLModel field types, optionality, and ontology metadata
 - **RDF import** — hydrate SQLModel instances from JSON-LD or RDF (Turtle / JSON-LD input)
 - **Prefix management** — vocabulary packs, frozen registries, and safer CURIE defaults for common ontologies (schema.org, SKOS, etc.)
-- **`semsql[shacl]` extra** — optional `pySHACL` integration for graph validation
+- **`ontosql[shacl]` extra** — optional `pySHACL` integration for graph validation
 
 ### Success criteria
 
@@ -56,7 +56,7 @@ SemSQL is the operational semantic layer for Python apps built on SQLModel and F
 
 - **`OntoRouter`** — auto-register CRUD routes for annotated models
 - **OpenAPI enrichment** — expose ontology IRIs, RDF types, and semantic media types in schema docs
-- **`semsql[jsonld]` extra** — PyLD-based compaction and framing
+- **`ontosql[jsonld]` extra** — PyLD-based compaction and framing
 - **Bulk export** — serialize query results (lists of models) to JSON-LD graphs or RDF datasets
 
 ### Success criteria
@@ -77,7 +77,7 @@ SemSQL is the operational semantic layer for Python apps built on SQLModel and F
 
 ### Candidate integrations (extras)
 
-- Neo4j driver (`semsql[graphdb]`)
+- Neo4j driver (`ontosql[graphdb]`)
 - SPARQLWrapper for remote endpoints
 
 ---
@@ -88,7 +88,7 @@ SemSQL is the operational semantic layer for Python apps built on SQLModel and F
 
 ### Planned
 
-- **API stability guarantee** — semver policy for public symbols in `semsql` and `semsql.fastapi`
+- **API stability guarantee** — semver policy for public symbols in `ontosql` and `ontosql.fastapi`
 - **Schema packs** — curated prefix bundles (schema.org, Dublin Core, SKOS, etc.)
 - **Production examples** — multi-model apps, auth, pagination, and negotiation patterns
 - **Full documentation site** — tutorials, API reference, migration guides
@@ -106,7 +106,7 @@ These are strategic directions, not committed milestones:
 
 | Direction | Description |
 |-----------|-------------|
-| **AI extraction** | Structured LLM output into `onto_field` models (`semsql[ai]` — Instructor, PydanticAI) |
+| **AI extraction** | Structured LLM output into `onto_field` models (`ontosql[ai]` — Instructor, PydanticAI) |
 | **OWL tooling** | Optional reasoning and ontology editing via Owlready2 |
 | **Polars / ETL** | Ontology-aware DataFrame pipelines |
 | **Entity resolution** | Link instances across datasets via shared IRIs |
@@ -116,7 +116,7 @@ These are strategic directions, not committed milestones:
 
 ## Explicit non-goals
 
-SemSQL will not attempt to replace:
+OntoSQL will not attempt to replace:
 
 - Full OWL reasoners or ontology IDEs (e.g. Protégé)
 - Native graph query languages as the primary application API
@@ -133,4 +133,4 @@ The focus stays on **Pythonic models first**, with RDF as an interoperability la
 3. **Optional weight** — heavy dependencies live in extras (`fastapi`, `shacl`, `jsonld`, `graphdb`)
 4. **Incremental delivery** — each minor version ships usable, documented features
 
-Feedback and contributions are welcome via [GitHub Issues](https://github.com/eddiethedean/semsql/issues).
+Feedback and contributions are welcome via [GitHub Issues](https://github.com/eddiethedean/ontosql/issues).

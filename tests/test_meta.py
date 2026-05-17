@@ -5,8 +5,8 @@ from __future__ import annotations
 from pydantic import Field
 from sqlmodel import SQLModel
 
-from semsql import OntoMixin, apply_onto_model
-from semsql._meta import (
+from ontosql import OntoMixin, apply_onto_model
+from ontosql._meta import (
     build_instance_iri,
     get_onto_meta,
     infer_xsd_datatype,
@@ -15,7 +15,7 @@ from semsql._meta import (
     reference_iri,
     resolve_curie,
 )
-from semsql.registry import PrefixRegistry
+from ontosql.registry import PrefixRegistry
 
 
 def test_get_onto_meta_empty() -> None:
